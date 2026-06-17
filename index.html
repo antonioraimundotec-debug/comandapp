@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comanda Print - Sistema de Impressão Bluetooth</title>
+    
+    <!-- Manifesto PWA Dinâmico Embutido (Garante a identificação de PWA sem arquivo secundário) -->
+    <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Comanda%20Print%22%2C%22short_name%22%3A%22ComandaPrint%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%234f46e5%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27100%27%20fill%3D%27%234f46e5%27%2F%3E%3Ctext%20y%3D%27340%27%20x%3D%27256%27%20font-size%3D%27220%27%20text-anchor%3D%27middle%27%3E%F0%9F%A7%BE%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%22%7D%5D%7D">
+    <meta name="theme-color" content="#4f46e5">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Courier+Prime:wght=400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -33,12 +38,17 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Comanda Print</h1>
-                    <p class="text-xs text-indigo-100">Impressão direta Bluetooth (ESC/POS) com Sincronização e Salvamento Local</p>
+                    <p class="text-xs text-indigo-100">Impressão direta Bluetooth (ESC/POS) com PWA e Sincronização Local</p>
                 </div>
             </div>
             
             <!-- Indicadores de Status -->
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                <!-- Botão de Instalar App (Oculto até ser detetado suporte) -->
+                <button id="btnInstallPWA" onclick="window.triggerPWAInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-xs transition-all shadow active:scale-95">
+                    <span>📲</span> Instalar App
+                </button>
+
                 <div id="cloudStatusBadge" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-300 border border-slate-500/30">
                     <span class="w-2.5 h-2.5 rounded-full bg-slate-400" id="cloudStatusDot"></span>
                     <span id="cloudStatusText">A verificar nuvem...</span>
@@ -202,34 +212,62 @@
 
                 <!-- ABA 3: DADOS DA EMPRESA E CONFIGURAÇÕES -->
                 <div id="paneEmpresa" class="space-y-4 hidden">
-                    <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="mb-4 bg-slate-100 p-4 rounded-xl border border-slate-200/50">
-                            <h3 class="text-sm font-bold text-slate-800 mb-1">Dados de Cabeçalho do Recibo</h3>
-                            <p class="text-xs text-slate-600">Configure aqui as informações básicas de contacto do estabelecimento. Estes dados são sincronizados e formatados de forma centralizada para que sejam impressos de forma nítida no topo de cada documento fiscal térmico.</p>
+                    <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-6">
+                        
+                        <!-- Dados Empresa -->
+                        <div>
+                            <div class="mb-4 bg-slate-100 p-4 rounded-xl border border-slate-200/50">
+                                <h3 class="text-sm font-bold text-slate-800 mb-1">Dados de Cabeçalho do Recibo</h3>
+                                <p class="text-xs text-slate-600">Configure aqui as informações básicas de contacto do estabelecimento. Estes dados são sincronizados e formatados de forma centralizada para que sejam impressos de forma nítida no topo de cada documento fiscal térmico.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Nome do Estabelecimento</label>
+                                    <input type="text" id="cfgEmpresa" value="Pizzaria Bella Italia" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Telefone / Contacto</label>
+                                    <input type="text" id="cfgTelefone" value="(87) 99999-0000" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Morada (opcional)</label>
+                                    <input type="text" id="cfgEndereco" value="Av. Central, 123 - Centro" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Nome do Estabelecimento</label>
-                                <input type="text" id="cfgEmpresa" value="Pizzaria Bella Italia" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                        <!-- AJUSTE E ATIVAÇÃO PWA (INSTALAR NO CELULAR) -->
+                        <div class="pt-6 border-t border-slate-200">
+                            <h3 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
+                                <span>📲</span> Configuração PWA (Instalar no Telemóvel)
+                            </h3>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Para que o botão de <strong>"Instalar App"</strong> surja no seu telemóvel ao usar o GitHub Pages, o navegador exige que o script de segundo plano (Service Worker) esteja presente na sua pasta. Siga as instruções abaixo para ativar esta opção:
+                            </p>
+
+                            <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl space-y-3 mb-4">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="font-semibold text-indigo-900">Estado do Service Worker:</span>
+                                    <span id="swStatusText" class="font-bold text-rose-500">Falta o ficheiro sw.js</span>
+                                </div>
+                                <div class="text-[11px] text-indigo-700 leading-normal">
+                                    Se o estado for <strong>"Falta o ficheiro sw.js"</strong>, clique no botão abaixo para descarregar o script necessário para o seu telemóvel/computador. Depois, basta carregar esse ficheiro para a raiz do seu repositório no GitHub (junto do index.html).
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Telefone / Contacto</label>
-                                <input type="text" id="cfgTelefone" value="(87) 99999-0000" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Morada (opcional)</label>
-                                <input type="text" id="cfgEndereco" value="Av. Central, 123 - Centro" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-                            </div>
+
+                            <button onclick="window.downloadServiceWorker()" class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                                <span>📥</span> Descarregar Ficheiro sw.js
+                            </button>
                         </div>
 
                         <!-- CONFIGURAÇÃO DE NUVEM PRÓPRIA (EXCLUSIVA PARA GITHUB PAGES) -->
-                        <div class="mt-6 pt-6 border-t border-slate-200">
+                        <div class="pt-6 border-t border-slate-200">
                             <h3 class="text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                                 <span>☁️</span> Sincronização em Nuvem Própria (Opcional)
                             </h3>
                             <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-                                Se implantou o aplicativo no GitHub Pages ou Vercel e deseja sincronizar os dados entre múltiplos dispositivos, insira abaixo a configuração em JSON do seu próprio projeto do Firebase Firestore. Deixe em branco para usar no modo de armazenamento local persistente.
+                                Se implantou o aplicativo no GitHub Pages ou Vercel e deseja sincronizar os dados entre múltiplos dispositivos, insira abaixo a configuração em JSON do seu próprio projeto do Firebase Firestore. Deixe em branco para usar no modo de armazenamento local de segurança.
                             </p>
                             <textarea id="cfgCustomFirebase" placeholder='{\n  "apiKey": "SUA_API_KEY",\n  "authDomain": "SEU_DOMAIN",\n  "projectId": "SEU_PROJECT_ID",\n  "storageBucket": "...",\n  "messagingSenderId": "...",\n  "appId": "..."\n}' class="w-full h-32 p-2 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-slate-50"></textarea>
                             <button onclick="window.saveCustomFirebase()" class="mt-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all shadow-sm">
@@ -365,7 +403,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA DO SISTEMA (À prova de travamento) -->
+    <!-- LÓGICA DO SISTEMA -->
     <script>
         // --- 1. ESTADO EM MEMÓRIA & PERSISTÊNCIA LOCAL (LocalStorage) ---
         
@@ -555,6 +593,49 @@
                 `;
                 container.appendChild(badge);
             });
+        }
+
+        // Criação de Script do Service Worker de suporte PWA offline
+        const swCode = `
+        const CACHE_NAME = 'comanda-print-cache-v1';
+        const ASSETS = [
+          './',
+          './index.html'
+        ];
+
+        self.addEventListener('install', (e) => {
+          e.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => {
+              return cache.addAll(ASSETS);
+            }).catch(err => console.log("Erro caching", err))
+          );
+        });
+
+        self.addEventListener('fetch', (e) => {
+          e.respondWith(
+            caches.match(e.request).then((response) => {
+              return response || fetch(e.request);
+            })
+          );
+        });
+        `;
+
+        // Ativa download nativo de sw.js de forma guiada para o utilizador
+        function downloadServiceWorker() {
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sw.js';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAlert("Descarregado!", "Suba o ficheiro 'sw.js' na raiz do seu repositório GitHub Pages onde está o seu index.html. O status mudará para Ativo ao atualizar a página.", "success");
+            } catch (e) {
+                showAlert("Erro no Download", e.message, "error");
+            }
         }
 
         function removeTempOption(index) {
@@ -1156,7 +1237,29 @@
             }
         }
 
-        // --- 6. EXPOSIÇÃO GLOBAL IMEDIATA (Evita erros de carregamento assíncrono) ---
+        // Captura do Evento Nativo de Instalação de Atalho (PWA Prompt)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('btnInstallPWA');
+            if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        function triggerPWAInstall() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('App instalado!');
+                }
+                deferredPrompt = null;
+                const installBtn = document.getElementById('btnInstallPWA');
+                if (installBtn) installBtn.classList.add('hidden');
+            });
+        }
+
+        // Exposição para eventos inline do HTML
         window.switchTab = switchTab;
         window.setPaperSize = setPaperSize;
         window.addTempOption = addTempOption;
@@ -1175,6 +1278,8 @@
         window.printBrowser = printBrowser;
         window.closeModal = closeModal;
         window.saveCustomFirebase = saveCustomFirebase;
+        window.downloadServiceWorker = downloadServiceWorker;
+        window.triggerPWAInstall = triggerPWAInstall;
 
         // Executar inicialização operacional síncrona
         loadLocalData();
@@ -1183,7 +1288,7 @@
         renderPreview();
     </script>
 
-    <!-- 7. CARREGAMENTO DINÂMICO E SEGURO DO FIREBASE -->
+    <!-- 7. CARREGAMENTO DINÂMICO E SEGURO DO FIREBASE / REGISTO DE SW -->
     <script type="module">
         const firebaseAppUrl = "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         const firebaseAuthUrl = "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1192,6 +1297,29 @@
         const badge = document.getElementById('cloudStatusBadge');
         const dot = document.getElementById('cloudStatusDot');
         const statusTxt = document.getElementById('cloudStatusText');
+
+        // Registro do Service Worker de forma segura sem travar em modo offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('Service Worker registado com sucesso');
+                        const swStatus = document.getElementById('swStatusText');
+                        if (swStatus) {
+                            swStatus.textContent = "Ativo (Instalação OK) ✔️";
+                            swStatus.className = "text-xs text-emerald-600 font-bold";
+                        }
+                    })
+                    .catch(err => {
+                        console.log('Falha ao registar o Service Worker:', err);
+                        const swStatus = document.getElementById('swStatusText');
+                        if (swStatus) {
+                            swStatus.textContent = "Falta o ficheiro sw.js ⚠️";
+                            swStatus.className = "text-xs text-rose-500 font-bold";
+                        }
+                    });
+            });
+        }
 
         function updateCloudStatus(text, color) {
             if (!badge || !dot || !statusTxt) return;
@@ -1301,7 +1429,7 @@
             }
         }
 
-        // Listener de sincronização passiva de dados para salvamento local caso altere morada/empresa
+        // Listener de sincronização de salvamento local caso altere morada/empresa
         const autoSaveFields = ['cfgEmpresa', 'cfgTelefone', 'cfgEndereco'];
         autoSaveFields.forEach(id => {
             const input = document.getElementById(id);
