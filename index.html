@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comanda Print - Sistema de Impressão Bluetooth</title>
     
-    <!-- Manifesto PWA Dinâmico Embutido (Garante a identificação de PWA sem arquivo secundário) -->
-    <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Comanda%20Print%22%2C%22short_name%22%3A%22ComandaPrint%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%234f46e5%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27100%27%20fill%3D%27%234f46e5%27%2F%3E%3Ctext%20y%3D%27340%27%20x%3D%27256%27%20font-size%3D%27220%27%20text-anchor%3D%27middle%27%3E%F0%9F%A7%BE%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%22%7D%5D%7D">
+    <!-- Referência ao Manifesto PWA Físico Padrão (Garante 100% de compatibilidade em todos os navegadores) -->
+    <link rel="manifest" id="pwaManifestLink" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -260,7 +260,7 @@
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span>⚙️ Estado do Navegador (Manifest)</span>
-                                    <span id="diagInstallable" class="font-semibold text-amber-500">Pendente</span>
+                                    <span id="diagInstallable" class="font-semibold text-rose-500">A verificar...</span>
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span>📱 Modo de Exibição</span>
@@ -269,13 +269,18 @@
                             </div>
 
                             <div class="space-y-3">
-                                <button onclick="window.downloadServiceWorker()" class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
-                                    <span>📥</span> Descarregar Ficheiro sw.js
-                                </button>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="window.downloadServiceWorker()" class="py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                                        <span>📥 sw.js</span> Descarregar Script
+                                    </button>
+                                    <button onclick="window.downloadManifest()" class="py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                                        <span>📥 manifest.json</span> Descarregar Manifest
+                                    </button>
+                                </div>
                                 
                                 <div class="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs space-y-2 leading-relaxed">
-                                    <p class="font-bold">⚠️ Tem o estado "Falta o ficheiro sw.js"?</p>
-                                    <p>Clique no botão acima para descarregar o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">sw.js</code>. Depois, carregue esse ficheiro para a raiz do seu repositório no GitHub Pages (no mesmo nível do <code class="font-mono bg-white/60 px-1 py-0.5 rounded">index.html</code>) para habilitar o suporte.</p>
+                                    <p class="font-bold">⚠️ Tem estados a vermelho no diagnóstico?</p>
+                                    <p>O GitHub Pages precisa de ler os ficheiros físicos correspondentes. Use os botões acima para gerar e descarregar o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">sw.js</code> e o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">manifest.json</code> e envie-os para a raiz do seu repositório no GitHub (no mesmo nível do <code class="font-mono bg-white/60 px-1 py-0.5 rounded">index.html</code>).</p>
                                 </div>
 
                                 <!-- Instrução de Instalação Manual baseada no SO -->
@@ -662,6 +667,44 @@
             }
         }
 
+        // Ativa o download nativo do arquivo manifest.json correspondente
+        function downloadManifest() {
+            try {
+                const manifestObj = {
+                  "name": "Comanda Print",
+                  "short_name": "ComandaPrint",
+                  "start_url": "./index.html",
+                  "display": "standalone",
+                  "background_color": "#4f46e5",
+                  "theme_color": "#4f46e5",
+                  "icons": [
+                    {
+                      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%234f46e5'/><text y='340' x='256' font-size='220' text-anchor='middle'>🖨️</text></svg>",
+                      "sizes": "512x512",
+                      "type": "image/svg+xml",
+                      "purpose": "any"
+                    }
+                  ]
+                };
+
+                const blob = new Blob([JSON.stringify(manifestObj, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'manifest.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAlert("Descarregado!", "Carregue o ficheiro 'manifest.json' na raiz do seu repositório GitHub Pages junto com o seu index.html.", "success");
+                
+                // Forçar uma re-verificação logo após download
+                setTimeout(runPWADiagnostics, 3000);
+            } catch (e) {
+                showAlert("Erro no Download", e.message, "error");
+            }
+        }
+
         function removeTempOption(index) {
             tempOptions.splice(index, 1);
             renderTempOptions();
@@ -913,7 +956,7 @@
             }
         }
 
-        // Diagnóstico das condições PWA em tempo real
+        // Diagnóstico das condições PWA em tempo real (Ativo e Preventivo)
         function runPWADiagnostics() {
             // 1. Diagnóstico HTTPS
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -931,7 +974,30 @@
                 diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
             }
 
-            // 3. Ajuste de instruções manuais conforme o Sistema Operativo detetado
+            // 3. Verificação Ativa do manifesto físico na raiz do projeto (Evita que fique "Pendente")
+            const diagInstall = document.getElementById('diagInstallable');
+            fetch('./manifest.json')
+                .then(res => {
+                    if (res.ok) {
+                        if (diagInstall) {
+                            diagInstall.textContent = "Detetado (manifest.json OK) ✔️";
+                            diagInstall.className = "font-semibold text-emerald-600";
+                        }
+                    } else {
+                        if (diagInstall) {
+                            diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
+                            diagInstall.className = "font-semibold text-rose-500";
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (diagInstall) {
+                        diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
+                        diagInstall.className = "font-semibold text-rose-500";
+                    }
+                });
+
+            // 4. Ajuste de instruções manuais conforme o Sistema Operativo detetado
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const manualContainer = document.getElementById('manualInstructions');
             if (manualContainer) {
@@ -1224,6 +1290,7 @@
             await new Promise(resolve => setTimeout(resolve, 50));
         }
 
+        // Corrige acentuação no papel
         function removeAccents(str) {
             return str
                 .normalize('NFD')
@@ -1363,6 +1430,7 @@
         window.closeModal = closeModal;
         window.saveCustomFirebase = saveCustomFirebase;
         window.downloadServiceWorker = downloadServiceWorker;
+        window.downloadManifest = downloadManifest;
         window.triggerPWAInstall = triggerPWAInstall;
 
         // Executar inicialização operacional síncrona
