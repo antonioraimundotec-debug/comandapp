@@ -45,7 +45,7 @@
             <!-- Indicadores de Status -->
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
                 <!-- Botão de Instalar App (Oculto até ser detetado suporte) -->
-                <button id="btnInstallPWA" onclick="window.triggerPWAInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-xs transition-all shadow active:scale-95">
+                <button id="btnInstallPWA" onclick="window.triggerPWAInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-xs transition-all shadow active:scale-95 animate-bounce">
                     <span>📲</span> Instalar App
                 </button>
 
@@ -237,28 +237,52 @@
                             </div>
                         </div>
 
-                        <!-- AJUSTE E ATIVAÇÃO PWA (INSTALAR NO CELULAR) -->
+                        <!-- PAINEL DE DIAGNÓSTICO E INSTALAÇÃO PWA -->
                         <div class="pt-6 border-t border-slate-200">
                             <h3 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
                                 <span>📲</span> Configuração PWA (Instalar no Telemóvel)
                             </h3>
                             <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                                Para que o botão de <strong>"Instalar App"</strong> surja no seu telemóvel ao usar o GitHub Pages, o navegador exige que o script de segundo plano (Service Worker) esteja presente na sua pasta. Siga as instruções abaixo para ativar esta opção:
+                                Para que o seu site no <strong>GitHub Pages</strong> seja reconhecido pelo navegador como uma App instalável, verifique os requisitos do seu dispositivo móvel abaixo:
                             </p>
 
-                            <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl space-y-3 mb-4">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-semibold text-indigo-900">Estado do Service Worker:</span>
-                                    <span id="swStatusText" class="font-bold text-rose-500">Falta o ficheiro sw.js</span>
+                            <!-- Lista de Verificação de Diagnóstico -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 mb-5 space-y-3 text-xs">
+                                <p class="font-bold text-stone-500 uppercase tracking-wider mb-1">Diagnóstico do Sistema</p>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span>🔒 Conexão Segura (HTTPS)</span>
+                                    <span id="diagHttps" class="font-semibold text-rose-500">A verificar...</span>
                                 </div>
-                                <div class="text-[11px] text-indigo-700 leading-normal">
-                                    Se o estado for <strong>"Falta o ficheiro sw.js"</strong>, clique no botão abaixo para descarregar o script necessário para o seu telemóvel/computador. Depois, basta carregar esse ficheiro para a raiz do seu repositório no GitHub (junto do index.html).
+                                <div class="flex items-center justify-between">
+                                    <span>📄 Ficheiro Service Worker (<code class="font-mono">sw.js</code>)</span>
+                                    <span id="swStatusText" class="font-semibold text-rose-500">A verificar...</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>⚙️ Estado do Navegador (Manifest)</span>
+                                    <span id="diagInstallable" class="font-semibold text-amber-500">Pendente</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>📱 Modo de Exibição</span>
+                                    <span id="diagDisplayMode" class="font-semibold text-stone-500">Navegador Comum</span>
                                 </div>
                             </div>
 
-                            <button onclick="window.downloadServiceWorker()" class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
-                                <span>📥</span> Descarregar Ficheiro sw.js
-                            </button>
+                            <div class="space-y-3">
+                                <button onclick="window.downloadServiceWorker()" class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                                    <span>📥</span> Descarregar Ficheiro sw.js
+                                </button>
+                                
+                                <div class="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs space-y-2 leading-relaxed">
+                                    <p class="font-bold">⚠️ Tem o estado "Falta o ficheiro sw.js"?</p>
+                                    <p>Clique no botão acima para descarregar o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">sw.js</code>. Depois, carregue esse ficheiro para a raiz do seu repositório no GitHub Pages (no mesmo nível do <code class="font-mono bg-white/60 px-1 py-0.5 rounded">index.html</code>) para habilitar o suporte.</p>
+                                </div>
+
+                                <!-- Instrução de Instalação Manual baseada no SO -->
+                                <div id="manualInstructions" class="p-4 bg-slate-100 border border-slate-200 rounded-xl text-xs space-y-2">
+                                    <!-- Injetado dinamicamente via JS -->
+                                </div>
+                            </div>
                         </div>
 
                         <!-- CONFIGURAÇÃO DE NUVEM PRÓPRIA (EXCLUSIVA PARA GITHUB PAGES) -->
@@ -889,6 +913,52 @@
             }
         }
 
+        // Diagnóstico das condições PWA em tempo real
+        function runPWADiagnostics() {
+            // 1. Diagnóstico HTTPS
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const diagHttps = document.getElementById('diagHttps');
+            if (diagHttps) {
+                diagHttps.textContent = isHttps ? "Seguro ✔️" : "Inseguro (Requer HTTPS) ❌";
+                diagHttps.className = isHttps ? "font-semibold text-emerald-600" : "font-semibold text-rose-500";
+            }
+
+            // 2. Modo de Exibição
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const diagDisplay = document.getElementById('diagDisplayMode');
+            if (diagDisplay) {
+                diagDisplay.textContent = isStandalone ? "App Standalone (Instalado) 🎉" : "Navegador Comum";
+                diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
+            }
+
+            // 3. Ajuste de instruções manuais conforme o Sistema Operativo detetado
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const manualContainer = document.getElementById('manualInstructions');
+            if (manualContainer) {
+                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900 flex items-center gap-1">🍏 Manual para iPhone (iOS):</p>
+                        <p class="mt-1">O iOS bloqueia instalações automáticas de PWA fora da App Store. Siga estes passos simples para ter o aplicativo como App:</p>
+                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
+                            <li>Abra o link no navegador <strong>Safari</strong> ou <strong>Bluefy</strong>.</li>
+                            <li>Toque no botão de <strong>Partilhar</strong> (ícone de quadrado com seta para cima no fundo).</li>
+                            <li>Role a lista para baixo e escolha <strong>"Adicionar ao Ecrã Principal"</strong>.</li>
+                        </ol>
+                    `;
+                } else {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900 flex items-center gap-1">🤖 Manual para Android (Chrome/Edge):</p>
+                        <p class="mt-1">Se o botão "Instalar App" acima não carregar, pode forçar a instalação do atalho inteligente manualmente:</p>
+                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
+                            <li>Clique nos <strong>três pontos</strong> do canto superior direito do seu navegador móvel.</li>
+                            <li>Selecione a opção <strong>"Instalar aplicação"</strong> ou <strong>"Adicionar ao ecrã principal"</strong>.</li>
+                            <li>A aplicação correrá com desempenho nativo e sem barras de navegação!</li>
+                        </ol>
+                    `;
+                }
+            }
+        }
+
         function removeItem(id) {
             cart = cart.filter(item => item.id !== id);
             if (window.firebaseSyncCart) {
@@ -927,6 +997,11 @@
             const spaces = Math.floor((columns - text.length) / 2);
             return " ".repeat(spaces) + text;
         }
+
+        // Monitorar alteração nas configurações para disparar o diagnóstico de forma estática
+        window.addEventListener('load', () => {
+            runPWADiagnostics();
+        });
 
         function getDivider() {
             return "-".repeat(columns);
@@ -1242,8 +1317,17 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            
+            // Ativa o botão no cabeçalho
             const installBtn = document.getElementById('btnInstallPWA');
             if (installBtn) installBtn.classList.remove('hidden');
+
+            // Atualiza o estado no painel de diagnóstico
+            const diagInstall = document.getElementById('diagInstallable');
+            if (diagInstall) {
+                diagInstall.textContent = "Disponível para Instalação ✔️";
+                diagInstall.className = "font-semibold text-emerald-600";
+            }
         });
 
         function triggerPWAInstall() {
@@ -1307,7 +1391,7 @@
                         const swStatus = document.getElementById('swStatusText');
                         if (swStatus) {
                             swStatus.textContent = "Ativo (Instalação OK) ✔️";
-                            swStatus.className = "text-xs text-emerald-600 font-bold";
+                            swStatus.className = "font-semibold text-emerald-600";
                         }
                     })
                     .catch(err => {
@@ -1315,7 +1399,7 @@
                         const swStatus = document.getElementById('swStatusText');
                         if (swStatus) {
                             swStatus.textContent = "Falta o ficheiro sw.js ⚠️";
-                            swStatus.className = "text-xs text-rose-500 font-bold";
+                            swStatus.className = "font-semibold text-rose-500";
                         }
                     });
             });
