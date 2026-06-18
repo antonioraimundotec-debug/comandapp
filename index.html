@@ -11,7 +11,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Courier+Prime:wght=400;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -20,9 +20,9 @@
         }
     </style>
     <!-- Chosen Palette: Slate Neutral with Royal Indigo and Amber accents -->
-    <!-- Application Structure Plan: Este aplicativo de página única (SPA) foi projetado para otimizar o fluxo de trabalho em restaurantes e pequenos comércios através do telemóvel. O design divide-se em três abas principais (Comanda, Catálogo e Empresa) para evitar sobrecarga de informação no ecrã. O painel lateral direito (ou inferior no telemóvel) exibe um simulador de papel térmico que atualiza instantaneamente a formatação de caracteres (32 colunas para 58mm ou 48 colunas para 80mm), garantindo o alinhamento perfeito antes de enviar os dados via Bluetooth para a impressora física. -->
+    <!-- Application Structure Plan: Este aplicativo de página única (SPA) foi projetado para otimizar o fluxo de trabalho em restaurantes e pequenos comércios através do telemóvel. O design divide-se em quatro abas principais (Comanda, Catálogo, Empresa e Configurações ⚙️) para evitar sobrecarga de informação no ecrã. O painel lateral direito (ou inferior no telemóvel) exibe um simulador de papel térmico que atualiza instantaneamente a formatação de caracteres (32 colunas para 58mm ou 48 colunas para 80mm), garantindo o alinhamento perfeito antes de enviar os dados via Bluetooth para a impressora física. -->
     <!-- Visualization & Content Choices: 
-         1. Sistema de Abas Interativo: Permite alternar rapidamente entre a operação diária (Comanda), o cadastro administrativo (Catálogo) e as informações fiscais (Empresa).
+         1. Sistema de Abas Interativo: Permite alternar rapidamente entre a operação diária (Comanda), o cadastro administrativo (Catálogo), as informações fiscais (Empresa) e as configurações técnicas (⚙️).
          2. Simulador de Talão Térmico: Bloco monoespaçado que processa quebras de linha e alinhamento de strings idênticos ao comportamento físico de uma impressora de agulha/térmica de 58mm/80mm.
          3. Popups de Modificadores: Modal dinâmico que calcula acréscimos e subtotais por produto com base em checkboxes de opcionais antes de adicionar ao carrinho de consumo.
          4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Emojis are used for all operational icons. -->
@@ -76,15 +76,18 @@
             <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 flex gap-1">
                 <button onclick="window.switchTab('Comanda')" id="btnTabComanda" class="flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm">
                     <span>🛍️</span>
-                    <span>Comanda</span>
+                    <span class="hidden sm:inline">Comanda</span>
                 </button>
                 <button onclick="window.switchTab('Catalogo')" id="btnTabCatalogo" class="flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-slate-500 hover:bg-slate-100">
                     <span>📋</span>
-                    <span>Registo</span>
+                    <span class="hidden sm:inline">Registo</span>
                 </button>
                 <button onclick="window.switchTab('Empresa')" id="btnTabEmpresa" class="flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-slate-500 hover:bg-slate-100">
                     <span>🏢</span>
-                    <span>Empresa</span>
+                    <span class="hidden sm:inline">Empresa</span>
+                </button>
+                <button onclick="window.switchTab('Config')" id="btnTabConfig" class="py-3 px-4 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-slate-500 hover:bg-slate-100" title="Configurações Técnicas">
+                    <span>⚙️</span>
                 </button>
             </div>
 
@@ -151,6 +154,17 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Observações Gerais da Comanda (Opcional)</label>
                             <input type="text" id="comandaObservacao" placeholder="Ex: Trazer guardanapos extras, sem cebola na pizza" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm">
                         </div>
+
+                        <!-- BOTÕES DE IMPRESSÃO (MOVIDOS PARA A ABA COMANDA) -->
+                        <div class="mt-5 pt-5 border-t border-slate-100 space-y-2.5">
+                            <button onclick="printBluetooth()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md hover:shadow-emerald-100 transition-all active:scale-98">
+                                <span>🔌 IMPRIMIR BLUETOOTH</span>
+                            </button>
+                            
+                            <button onclick="printBrowser()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+                                <span>🖨️ Imprimir via Sistema / Guardar PDF</span>
+                            </button>
+                        </div>
                     </section>
                 </div>
 
@@ -210,11 +224,9 @@
                     </section>
                 </div>
 
-                <!-- ABA 3: DADOS DA EMPRESA E CONFIGURAÇÕES -->
+                <!-- ABA 3: DADOS DA EMPRESA -->
                 <div id="paneEmpresa" class="space-y-4 hidden">
                     <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-6">
-                        
-                        <!-- Dados Empresa -->
                         <div>
                             <div class="mb-4 bg-slate-100 p-4 rounded-xl border border-slate-200/50">
                                 <h3 class="text-sm font-bold text-slate-800 mb-1">Dados de Cabeçalho do Recibo</h3>
@@ -236,9 +248,46 @@
                                 </div>
                             </div>
                         </div>
+                    </section>
+                </div>
+
+                <!-- ABA 4: CONFIGURAÇÕES GERAIS (ENGRENAGEM ⚙️) -->
+                <div id="paneConfig" class="space-y-4 hidden">
+                    <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-6">
+                        
+                        <!-- PARÂMETROS DE IMPRESSÃO (MOVIDO PARA A ABA DE CONFIGURAÇÕES) -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <span>⚙️</span> Parâmetros de Impressão
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Tamanho da Bobina (Largura)</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button onclick="setPaperSize(58)" id="btnSize58" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700">
+                                            <span>58 mm</span>
+                                            <span class="text-[10px] font-normal text-indigo-500">(Geralmente 32 colunas)</span>
+                                        </button>
+                                        <button onclick="setPaperSize(80)" id="btnSize80" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600">
+                                            <span>80 mm</span>
+                                            <span class="text-[10px] font-normal text-slate-400">(Geralmente 48 colunas)</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Objetivo da Via</label>
+                                    <select id="cfgLayout" onchange="renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none text-sm font-medium bg-white">
+                                        <option value="via_completa">Via Completa / Conta do Cliente</option>
+                                        <option value="via_cozinha">Via de Cozinha / Preparo (Sem preços)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- PAINEL DE DIAGNÓSTICO E INSTALAÇÃO PWA -->
-                        <div class="pt-6 border-t border-slate-200">
+                        <div>
                             <h3 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
                                 <span>📲</span> Configuração PWA (Instalar no Telemóvel)
                             </h3>
@@ -309,40 +358,9 @@
             </div>
         </div>
 
-        <!-- COLUNA DIREITA: Preview da Impressão e Controles -->
+        <!-- COLUNA DIREITA: Preview da Impressão (Focado estritamente em Monitorização) -->
         <div class="lg:col-span-5 flex flex-col gap-6">
             
-            <!-- Parâmetros -->
-            <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <span>⚙️</span> Parâmetros de Impressão
-                </h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Tamanho da Bobina (Largura)</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="setPaperSize(58)" id="btnSize58" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700">
-                                <span>58 mm</span>
-                                <span class="text-[10px] font-normal text-indigo-500">(Geralmente 32 colunas)</span>
-                            </button>
-                            <button onclick="setPaperSize(80)" id="btnSize80" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600">
-                                <span>80 mm</span>
-                                <span class="text-[10px] font-normal text-slate-400">(Geralmente 48 colunas)</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Objetivo da Via</label>
-                        <select id="cfgLayout" onchange="renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none text-sm font-medium">
-                            <option value="via_completa">Via Completa / Conta do Cliente</option>
-                            <option value="via_cozinha">Via de Cozinha / Preparo (Sem preços)</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
             <!-- Preview Físico em Tela -->
             <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col">
                 <div class="mb-4 bg-amber-50/60 p-4 rounded-xl border border-amber-100/40">
@@ -354,17 +372,6 @@
                     <div id="simulatedReceipt" class="mono-printer bg-white text-black p-5 shadow-md border border-slate-200 text-xs transition-all leading-tight whitespace-pre" style="width: 280px; font-size: 11px;">
                         <!-- Texto do recibo renderizado aqui -->
                     </div>
-                </div>
-
-                <!-- Botões de Ação -->
-                <div class="mt-5 space-y-2.5">
-                    <button onclick="printBluetooth()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md hover:shadow-emerald-100 transition-all active:scale-98">
-                        <span>🔌 IMPRIMIR BLUETOOTH</span>
-                    </button>
-                    
-                    <button onclick="printBrowser()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
-                        <span>🖨️ Imprimir via Sistema / Guardar PDF</span>
-                    </button>
                 </div>
             </section>
         </div>
@@ -514,8 +521,9 @@
             document.getElementById('paneComanda').classList.add('hidden');
             document.getElementById('paneCatalogo').classList.add('hidden');
             document.getElementById('paneEmpresa').classList.add('hidden');
+            document.getElementById('paneConfig').classList.add('hidden');
 
-            const tabs = ['Comanda', 'Catalogo', 'Empresa'];
+            const tabs = ['Comanda', 'Catalogo', 'Empresa', 'Config'];
             tabs.forEach(t => {
                 const btn = document.getElementById('btnTab' + t);
                 if (btn) btn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-slate-500 hover:bg-slate-100";
@@ -525,7 +533,13 @@
             if (pane) pane.classList.remove('hidden');
 
             const activeBtn = document.getElementById('btnTab' + tabId);
-            if (activeBtn) activeBtn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
+            if (activeBtn) {
+                if (tabId === 'Config') {
+                    activeBtn.className = "py-3 px-4 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
+                } else {
+                    activeBtn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
+                }
+            }
         }
 
         function setPaperSize(size) {
@@ -825,6 +839,75 @@
             currentModalProduct = null;
         }
 
+        // Diagnóstico das condições PWA em tempo real (Ativo e Preventivo)
+        function runPWADiagnostics() {
+            // 1. Diagnóstico HTTPS
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const diagHttps = document.getElementById('diagHttps');
+            if (diagHttps) {
+                diagHttps.textContent = isHttps ? "Seguro ✔️" : "Inseguro (Requer HTTPS) ❌";
+                diagHttps.className = isHttps ? "font-semibold text-emerald-600" : "font-semibold text-rose-500";
+            }
+
+            // 2. Modo de Exibição
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const diagDisplay = document.getElementById('diagDisplayMode');
+            if (diagDisplay) {
+                diagDisplay.textContent = isStandalone ? "App Standalone (Instalado) 🎉" : "Navegador Comum";
+                diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
+            }
+
+            // 3. Verificação Ativa do manifesto físico na raiz do projeto (Evita que fique "Pendente")
+            const diagInstall = document.getElementById('diagInstallable');
+            fetch('./manifest.json')
+                .then(res => {
+                    if (res.ok) {
+                        if (diagInstall) {
+                            diagInstall.textContent = "Detetado (manifest.json OK) ✔️";
+                            diagInstall.className = "font-semibold text-emerald-600";
+                        }
+                    } else {
+                        if (diagInstall) {
+                            diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
+                            diagInstall.className = "font-semibold text-rose-500";
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (diagInstall) {
+                        diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
+                        diagInstall.className = "font-semibold text-rose-500";
+                    }
+                });
+
+            // 4. Ajuste de instruções manuais conforme o Sistema Operativo detetado
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const manualContainer = document.getElementById('manualInstructions');
+            if (manualContainer) {
+                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900 flex items-center gap-1">🍏 Manual para iPhone (iOS):</p>
+                        <p class="mt-1">O iOS bloqueia instalações automáticas de PWA fora da App Store. Siga estes passos simples para ter o aplicativo como App:</p>
+                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
+                            <li>Abra o link no navegador <strong>Safari</strong> ou <strong>Bluefy</strong>.</li>
+                            <li>Toque no botão de <strong>Partilhar</strong> (ícone de quadrado com seta para cima no fundo).</li>
+                            <li>Role a lista para baixo e escolha <strong>"Adicionar ao Ecrã Principal"</strong>.</li>
+                        </ol>
+                    `;
+                } else {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900 flex items-center gap-1">🤖 Manual para Android (Chrome/Edge):</p>
+                        <p class="mt-1">Se o botão "Instalar App" acima não carregar, pode forçar a instalação do atalho inteligente manualmente:</p>
+                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
+                            <li>Clique nos <strong>três pontos</strong> do canto superior direito do seu navegador móvel.</li>
+                            <li>Selecione a opção <strong>"Instalar aplicação"</strong> ou <strong>"Adicionar ao ecrã principal"</strong>.</li>
+                            <li>A aplicação correrá com desempenho nativo e sem barras de navegação!</li>
+                        </ol>
+                    `;
+                }
+            }
+        }
+
         function getModalCalculation() {
             if (!currentModalProduct) return { base: 0, extra: 0, unit: 0, total: 0, selected: [] };
 
@@ -952,75 +1035,6 @@
                     }
                     renderCart();
                     renderPreview();
-                }
-            }
-        }
-
-        // Diagnóstico das condições PWA em tempo real (Ativo e Preventivo)
-        function runPWADiagnostics() {
-            // 1. Diagnóstico HTTPS
-            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const diagHttps = document.getElementById('diagHttps');
-            if (diagHttps) {
-                diagHttps.textContent = isHttps ? "Seguro ✔️" : "Inseguro (Requer HTTPS) ❌";
-                diagHttps.className = isHttps ? "font-semibold text-emerald-600" : "font-semibold text-rose-500";
-            }
-
-            // 2. Modo de Exibição
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            const diagDisplay = document.getElementById('diagDisplayMode');
-            if (diagDisplay) {
-                diagDisplay.textContent = isStandalone ? "App Standalone (Instalado) 🎉" : "Navegador Comum";
-                diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
-            }
-
-            // 3. Verificação Ativa do manifesto físico na raiz do projeto (Evita que fique "Pendente")
-            const diagInstall = document.getElementById('diagInstallable');
-            fetch('./manifest.json')
-                .then(res => {
-                    if (res.ok) {
-                        if (diagInstall) {
-                            diagInstall.textContent = "Detetado (manifest.json OK) ✔️";
-                            diagInstall.className = "font-semibold text-emerald-600";
-                        }
-                    } else {
-                        if (diagInstall) {
-                            diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
-                            diagInstall.className = "font-semibold text-rose-500";
-                        }
-                    }
-                })
-                .catch(() => {
-                    if (diagInstall) {
-                        diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
-                        diagInstall.className = "font-semibold text-rose-500";
-                    }
-                });
-
-            // 4. Ajuste de instruções manuais conforme o Sistema Operativo detetado
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const manualContainer = document.getElementById('manualInstructions');
-            if (manualContainer) {
-                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                    manualContainer.innerHTML = `
-                        <p class="font-bold text-indigo-900 flex items-center gap-1">🍏 Manual para iPhone (iOS):</p>
-                        <p class="mt-1">O iOS bloqueia instalações automáticas de PWA fora da App Store. Siga estes passos simples para ter o aplicativo como App:</p>
-                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
-                            <li>Abra o link no navegador <strong>Safari</strong> ou <strong>Bluefy</strong>.</li>
-                            <li>Toque no botão de <strong>Partilhar</strong> (ícone de quadrado com seta para cima no fundo).</li>
-                            <li>Role a lista para baixo e escolha <strong>"Adicionar ao Ecrã Principal"</strong>.</li>
-                        </ol>
-                    `;
-                } else {
-                    manualContainer.innerHTML = `
-                        <p class="font-bold text-indigo-900 flex items-center gap-1">🤖 Manual para Android (Chrome/Edge):</p>
-                        <p class="mt-1">Se o botão "Instalar App" acima não carregar, pode forçar a instalação do atalho inteligente manualmente:</p>
-                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
-                            <li>Clique nos <strong>três pontos</strong> do canto superior direito do seu navegador móvel.</li>
-                            <li>Selecione a opção <strong>"Instalar aplicação"</strong> ou <strong>"Adicionar ao ecrã principal"</strong>.</li>
-                            <li>A aplicação correrá com desempenho nativo e sem barras de navegação!</li>
-                        </ol>
-                    `;
                 }
             }
         }
