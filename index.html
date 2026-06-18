@@ -11,7 +11,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Courier+Prime:wght=400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -21,11 +21,6 @@
     </style>
     <!-- Chosen Palette: Slate Neutral with Royal Indigo and Amber accents -->
     <!-- Application Structure Plan: Este aplicativo de página única (SPA) foi projetado para otimizar o fluxo de trabalho em restaurantes e pequenos comércios através do telemóvel. O design divide-se em quatro abas principais (Comanda, Catálogo, Empresa e Configurações ⚙️) para evitar sobrecarga de informação no ecrã. O painel lateral direito (ou inferior no telemóvel) exibe um simulador de papel térmico que atualiza instantaneamente a formatação de caracteres (32 colunas para 58mm ou 48 colunas para 80mm), garantindo o alinhamento perfeito antes de enviar os dados via Bluetooth para a impressora física. -->
-    <!-- Visualization & Content Choices: 
-         1. Sistema de Abas Interativo: Permite alternar rapidamente entre a operação diária (Comanda), o cadastro administrativo (Catálogo), as informações fiscais (Empresa) e as configurações técnicas (⚙️).
-         2. Simulador de Talão Térmico: Bloco monoespaçado que processa quebras de linha e alinhamento de strings idênticos ao comportamento físico de uma impressora de agulha/térmica de 58mm/80mm.
-         3. Popups de Modificadores: Modal dinâmico que calcula acréscimos e subtotais por produto com base em checkboxes de opcionais antes de adicionar ao carrinho de consumo.
-         4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Emojis are used for all operational icons. -->
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
@@ -439,6 +434,33 @@
         </div>
     </div>
 
+    <!-- MODAL 3: Validação de Senha de Segurança para Configurações (⚙️) -->
+    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 transition-all scale-100">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Acesso Restrito 🔒</h3>
+                    <p class="text-xs text-slate-400">Insira a senha de acesso para entrar nas configurações técnicas.</p>
+                </div>
+                <button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <span>❌</span>
+                </button>
+            </div>
+            <div class="my-4 space-y-3">
+                <input type="password" id="pwaConfigPassword" placeholder="Insira a senha..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm">
+                <p id="passwordError" class="text-xs text-rose-500 font-semibold hidden">Senha incorreta. Tente novamente.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closePasswordModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="validateConfigPassword()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1">
+                    <span>✔️</span> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- LÓGICA DO SISTEMA -->
     <script>
         // --- 1. ESTADO EM MEMÓRIA & PERSISTÊNCIA LOCAL (LocalStorage) ---
@@ -467,6 +489,8 @@
         let currentModalQty = 1;
         let paperSize = 58;
         let columns = 32;
+
+        let isConfigUnlocked = false; // Estado de bloqueio da aba configurações
 
         let device = null;
         let server = null;
@@ -518,6 +542,12 @@
         // --- 2. SISTEMA DE ABAS E OPERAÇÃO DO APP ---
 
         function switchTab(tabId) {
+            // Se tentar aceder às configurações sem desbloquear, mostra modal de senha
+            if (tabId === 'Config' && !isConfigUnlocked) {
+                openPasswordModal();
+                return;
+            }
+
             document.getElementById('paneComanda').classList.add('hidden');
             document.getElementById('paneCatalogo').classList.add('hidden');
             document.getElementById('paneEmpresa').classList.add('hidden');
@@ -539,6 +569,31 @@
                 } else {
                     activeBtn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
                 }
+            }
+        }
+
+        // Métodos de Controlo do Modal de Segurança
+        function openPasswordModal() {
+            document.getElementById('pwaConfigPassword').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('passwordModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('pwaConfigPassword').focus();
+            }, 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function validateConfigPassword() {
+            const pwd = document.getElementById('pwaConfigPassword').value;
+            if (pwd === '24072009') {
+                isConfigUnlocked = true;
+                closePasswordModal();
+                switchTab('Config');
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
             }
         }
 
@@ -636,87 +691,6 @@
                 `;
                 container.appendChild(badge);
             });
-        }
-
-        // Criação de Script do Service Worker de suporte PWA offline
-        const swCode = `
-        const CACHE_NAME = 'comanda-print-cache-v1';
-        const ASSETS = [
-          './',
-          './index.html'
-        ];
-
-        self.addEventListener('install', (e) => {
-          e.waitUntil(
-            caches.open(CACHE_NAME).then((cache) => {
-              return cache.addAll(ASSETS);
-            }).catch(err => console.log("Erro caching", err))
-          );
-        });
-
-        self.addEventListener('fetch', (e) => {
-          e.respondWith(
-            caches.match(e.request).then((response) => {
-              return response || fetch(e.request);
-            })
-          );
-        });
-        `;
-
-        // Ativa download nativo de sw.js de forma guiada para o utilizador
-        function downloadServiceWorker() {
-            try {
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'sw.js';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showAlert("Descarregado!", "Suba o ficheiro 'sw.js' na raiz do seu repositório GitHub Pages onde está o seu index.html. O status mudará para Ativo ao atualizar a página.", "success");
-            } catch (e) {
-                showAlert("Erro no Download", e.message, "error");
-            }
-        }
-
-        // Ativa o download nativo do arquivo manifest.json correspondente
-        function downloadManifest() {
-            try {
-                const manifestObj = {
-                  "name": "Comanda Print",
-                  "short_name": "ComandaPrint",
-                  "start_url": "./index.html",
-                  "display": "standalone",
-                  "background_color": "#4f46e5",
-                  "theme_color": "#4f46e5",
-                  "icons": [
-                    {
-                      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%234f46e5'/><text y='340' x='256' font-size='220' text-anchor='middle'>🖨️</text></svg>",
-                      "sizes": "512x512",
-                      "type": "image/svg+xml",
-                      "purpose": "any"
-                    }
-                  ]
-                };
-
-                const blob = new Blob([JSON.stringify(manifestObj, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'manifest.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showAlert("Descarregado!", "Carregue o ficheiro 'manifest.json' na raiz do seu repositório GitHub Pages junto com o seu index.html.", "success");
-                
-                // Forçar uma re-verificação logo após download
-                setTimeout(runPWADiagnostics, 3000);
-            } catch (e) {
-                showAlert("Erro no Download", e.message, "error");
-            }
         }
 
         function removeTempOption(index) {
@@ -1083,6 +1057,18 @@
             runPWADiagnostics();
         });
 
+        // Configurando Event Listener para a tecla Enter no modal de senha
+        window.addEventListener('DOMContentLoaded', () => {
+            const pwdInput = document.getElementById('pwaConfigPassword');
+            if (pwdInput) {
+                pwdInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        validateConfigPassword();
+                    }
+                });
+            }
+        });
+
         function getDivider() {
             return "-".repeat(columns);
         }
@@ -1393,6 +1379,77 @@
             }
         }
 
+        function downloadServiceWorker() {
+            const swContent = `// Service Worker para Comanda Print PWA
+const CACHE_NAME = 'comanda-print-v1';
+const ASSETS = [
+    './',
+    './index.html',
+    'https://cdn.tailwindcss.com'
+];
+
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(ASSETS);
+        })
+    );
+});
+
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        caches.match(e.request).then((response) => {
+            return response || fetch(e.request);
+        })
+    );
+});`;
+            
+            const blob = new Blob([swContent], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sw.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadManifest() {
+            const manifestContent = {
+                "name": "Comanda Print",
+                "short_name": "ComandaPrint",
+                "description": "Sistema de Impressão Bluetooth PWA para Comandas",
+                "start_url": "./index.html",
+                "display": "standalone",
+                "background_color": "#4f46e5",
+                "theme_color": "#4f46e5",
+                "orientation": "portrait",
+                "icons": [
+                    {
+                        "src": "https://placehold.co/192x192/4f46e5/ffffff?text=CP",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "https://placehold.co/512x512/4f46e5/ffffff?text=Comanda+Print",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            };
+            
+            const blob = new Blob([JSON.stringify(manifestContent, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'manifest.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         // Captura do Evento Nativo de Instalação de Atalho (PWA Prompt)
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -1446,6 +1503,9 @@
         window.downloadServiceWorker = downloadServiceWorker;
         window.downloadManifest = downloadManifest;
         window.triggerPWAInstall = triggerPWAInstall;
+        window.openPasswordModal = openPasswordModal;
+        window.closePasswordModal = closePasswordModal;
+        window.validateConfigPassword = validateConfigPassword;
 
         // Executar inicialização operacional síncrona
         loadLocalData();
