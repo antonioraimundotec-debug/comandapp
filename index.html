@@ -1371,6 +1371,8 @@
 
                 showAlert("A Imprimir", "Dados enviados com sucesso para a bobina da impressora térmica!", "success");
 
+                clearCart();
+
             } catch (error) {
                 console.error("Erro na transmissão:", error);
                 showAlert("Falha na Transmissão", "Erro ao tentar enviar bytes de impressão: " + error.message, "error");
@@ -1424,6 +1426,8 @@
                 </html>
             `);
             printWindow.document.close();
+
+            clearCart();
         }
 
         // --- 5. INTERFACE DOS MODAIS DE FEEDBACK ---
