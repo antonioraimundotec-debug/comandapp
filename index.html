@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comanda Print - Sistema de Impressão Bluetooth</title>
     
-    <!-- Referência ao Manifesto PWA Físico Padrão (Garante 100% de compatibilidade em todos os navegadores) -->
+    <!-- Referência ao Manifesto PWA Físico Padrão -->
     <link rel="manifest" id="pwaManifestLink" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
 
@@ -19,8 +19,6 @@
             font-family: 'Courier Prime', 'Courier New', monospace;
         }
     </style>
-    <!-- Chosen Palette: Slate Neutral with Royal Indigo and Amber accents -->
-    <!-- Application Structure Plan: Este aplicativo de página única (SPA) foi projetado para otimizar o fluxo de trabalho em restaurantes e pequenos comércios através do telemóvel. O design divide-se em quatro abas principais (Comanda, Catálogo, Empresa e Configurações ⚙️) para evitar sobrecarga de informação no ecrã. O painel lateral direito (ou inferior no telemóvel) exibe um simulador de papel térmico que atualiza instantaneamente a formatação de caracteres (32 colunas para 58mm ou 48 colunas para 80mm), garantindo o alinhamento perfeito antes de enviar os dados via Bluetooth para a impressora física. -->
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
@@ -39,7 +37,6 @@
             
             <!-- Indicadores de Status -->
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-                <!-- Botão de Instalar App (Oculto até ser detetado suporte) -->
                 <button id="btnInstallPWA" onclick="window.triggerPWAInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-xs transition-all shadow active:scale-95 animate-bounce">
                     <span>📲</span> Instalar App
                 </button>
@@ -98,10 +95,8 @@
                         </div>
 
                         <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-lg font-bold text-slate-800">Itens Ativos</h2>
-                            </div>
-                            <button onclick="clearCart()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1 transition-colors">
+                            <h2 class="text-lg font-bold text-slate-800">Itens Ativos</h2>
+                            <button onclick="window.clearCart()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1 transition-colors">
                                 <span>🗑️</span> Limpar Tudo
                             </button>
                         </div>
@@ -110,11 +105,11 @@
                         <div class="grid grid-cols-2 gap-4 mb-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Identificador / Mesa</label>
-                                <input type="text" id="comandaIdentificacao" value="Mesa 04" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                <input type="text" id="comandaIdentificacao" value="Mesa 04" oninput="window.renderPreview()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Atendente / Garçom</label>
-                                <input type="text" id="comandaAtendente" value="Carlos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                <input type="text" id="comandaAtendente" value="Carlos" oninput="window.renderPreview()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
                             </div>
                         </div>
 
@@ -147,16 +142,15 @@
                         <!-- Observações -->
                         <div class="mt-4 pt-4 border-t border-slate-100">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Observações Gerais da Comanda (Opcional)</label>
-                            <input type="text" id="comandaObservacao" placeholder="Ex: Trazer guardanapos extras, sem cebola na pizza" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm">
+                            <input type="text" id="comandaObservacao" oninput="window.renderPreview()" placeholder="Ex: Trazer guardanapos extras, sem cebola na pizza" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm">
                         </div>
 
-                        <!-- BOTÕES DE IMPRESSÃO (MOVIDOS PARA A ABA COMANDA) -->
+                        <!-- Botões de Impressão -->
                         <div class="mt-5 pt-5 border-t border-slate-100 space-y-2.5">
-                            <button onclick="printBluetooth()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md hover:shadow-emerald-100 transition-all active:scale-98">
+                            <button onclick="window.printBluetooth()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md hover:shadow-emerald-100 transition-all active:scale-98">
                                 <span>🔌 IMPRIMIR BLUETOOTH</span>
                             </button>
-                            
-                            <button onclick="printBrowser()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+                            <button onclick="window.printBrowser()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
                                 <span>🖨️ Imprimir via Sistema / Guardar PDF</span>
                             </button>
                         </div>
@@ -168,7 +162,7 @@
                     <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
                         <div class="mb-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/30">
                             <h3 class="text-sm font-bold text-emerald-900 mb-1">Gerenciamento de Produtos e Adicionais</h3>
-                            <p class="text-xs text-emerald-700">Esta secção administrativa permite-lhe customizar o portfólio do estabelecimento. Cadastre produtos com preços fixos e monte listas de opcionais/modificadores customizáveis que estarão disponíveis durante o lançamento rápido.</p>
+                            <p class="text-xs text-emerald-700">Esta secção administrativa permite-lhe customizar o portfólio do estabelecimento. Cadastre produtos com preços fixos e monte listas de opcionais/modificadores customizáveis.</p>
                         </div>
 
                         <div class="space-y-4">
@@ -176,7 +170,7 @@
                             <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
                                 <div class="flex justify-between items-center">
                                     <p id="formProductTitle" class="text-xs font-bold text-slate-600">Novo Produto</p>
-                                    <button id="btnCancelEdit" onclick="cancelEditProduct()" class="hidden px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[10px] rounded-lg transition-all">
+                                    <button id="btnCancelEdit" onclick="window.cancelEditProduct()" class="hidden px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[10px] rounded-lg transition-all">
                                         ❌ Cancelar Edição
                                     </button>
                                 </div>
@@ -201,14 +195,14 @@
 
                                     <div class="flex gap-2">
                                         <input type="text" id="regOptNome" placeholder="Opção (Ex: Com Bacon, Sem Cebola)" class="flex-1 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none">
-                                        <input type="number" id="regOptPreco" step="0.01" placeholder="Preço adicional R$" class="w-28 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none">
-                                        <button type="button" onclick="addTempOption()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg flex items-center gap-1 transition-all">
+                                        <input type="number" id="regOptPreco" step="0.01" placeholder="Preço" class="w-24 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none">
+                                        <button type="button" onclick="window.addTempOption()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg flex items-center gap-1 transition-all">
                                             <span>➕</span> Add
                                         </button>
                                     </div>
                                 </div>
 
-                                <button onclick="saveNewProduct()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                                <button onclick="window.saveNewProduct()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm">
                                     <span>💾</span> <span id="btnSaveProductText">Registar no Catálogo</span>
                                 </button>
                             </div>
@@ -230,32 +224,32 @@
                         <div>
                             <div class="mb-4 bg-slate-100 p-4 rounded-xl border border-slate-200/50">
                                 <h3 class="text-sm font-bold text-slate-800 mb-1">Dados de Cabeçalho do Recibo</h3>
-                                <p class="text-xs text-slate-600">Configure aqui as informações básicas de contacto do estabelecimento. Estes dados são sincronizados e formatados de forma centralizada para que sejam impressos de forma nítida no topo de cada documento fiscal térmico.</p>
+                                <p class="text-xs text-slate-600">Configure aqui as informações de contacto do estabelecimento. Estes dados são sincronizados para que apareçam de forma nítida no topo de cada documento fiscal térmico.</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Nome do Estabelecimento</label>
-                                    <input type="text" id="cfgEmpresa" value="Pizzaria Bella Italia" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                    <input type="text" id="cfgEmpresa" value="Pizzaria Bella Italia" oninput="window.renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Telefone / Contacto</label>
-                                    <input type="text" id="cfgTelefone" value="(87) 99999-0000" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                    <input type="text" id="cfgTelefone" value="(87) 99999-0000" oninput="window.renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Morada (opcional)</label>
-                                    <input type="text" id="cfgEndereco" value="Av. Central, 123 - Centro" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Morada</label>
+                                    <input type="text" id="cfgEndereco" value="Av. Central, 123 - Centro" oninput="window.renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
                                 </div>
                             </div>
                         </div>
                     </section>
                 </div>
 
-                <!-- ABA 4: CONFIGURAÇÕES GERAIS (ENGRENAGEM ⚙️) -->
+                <!-- ABA 4: CONFIGURAÇÕES GERAIS (ENGRENAGEM ⚙) -->
                 <div id="paneConfig" class="space-y-4 hidden">
                     <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-6">
                         
-                        <!-- PARÂMETROS DE IMPRESSÃO (MOVIDO PARA A ABA DE CONFIGURAÇÕES) -->
+                        <!-- PARÂMETROS DE IMPRESSÃO -->
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
                             <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                                 <span>⚙️</span> Parâmetros de Impressão
@@ -265,24 +259,43 @@
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Tamanho da Bobina (Largura)</label>
                                     <div class="grid grid-cols-2 gap-2">
-                                        <button onclick="setPaperSize(58)" id="btnSize58" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700">
+                                        <button onclick="window.setPaperSize(58)" id="btnSize58" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700">
                                             <span>58 mm</span>
-                                            <span class="text-[10px] font-normal text-indigo-500">(Geralmente 32 colunas)</span>
+                                            <span class="text-[10px] font-normal text-indigo-500">(32 colunas)</span>
                                         </button>
-                                        <button onclick="setPaperSize(80)" id="btnSize80" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600">
+                                        <button onclick="window.setPaperSize(80)" id="btnSize80" class="py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600">
                                             <span>80 mm</span>
-                                            <span class="text-[10px] font-normal text-slate-400">(Geralmente 48 colunas)</span>
+                                            <span class="text-[10px] font-normal text-slate-400">(48 colunas)</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Objetivo da Via</label>
-                                    <select id="cfgLayout" onchange="renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none text-sm font-medium bg-white">
+                                    <select id="cfgLayout" onchange="window.renderPreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none text-sm font-medium bg-white">
                                         <option value="via_completa">Via Completa / Conta do Cliente</option>
                                         <option value="via_cozinha">Via de Cozinha / Preparo (Sem preços)</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- CÓPIA DE SEGURANÇA E IMPORTAÇÃO -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                            <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <span>📦</span> Cópia de Segurança de Produtos
+                            </h3>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Faça uma salvaguarda externa dos seus produtos registados em formato JSON, ou restaure um backup feito anteriormente.
+                            </p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="window.exportCatalog()" class="py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                                    <span>📥</span> Exportar JSON
+                                </button>
+                                <button onclick="document.getElementById('importCatalogInput').click()" class="py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                                    <span>📤</span> Carregar JSON
+                                </button>
+                                <input type="file" id="importCatalogInput" accept=".json" onchange="window.importCatalog(event)" class="hidden">
                             </div>
                         </div>
 
@@ -292,13 +305,12 @@
                                 <span>📲</span> Configuração PWA (Instalar no Telemóvel)
                             </h3>
                             <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                                Para que o seu site no <strong>GitHub Pages</strong> seja reconhecido pelo navegador como uma App instalável, verifique os requisitos do seu dispositivo móvel abaixo:
+                                Verifique as condições do aplicativo no seu dispositivo móvel:
                             </p>
 
                             <!-- Lista de Verificação de Diagnóstico -->
                             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 mb-5 space-y-3 text-xs">
                                 <p class="font-bold text-stone-500 uppercase tracking-wider mb-1">Diagnóstico do Sistema</p>
-                                
                                 <div class="flex items-center justify-between">
                                     <span>🔒 Conexão Segura (HTTPS)</span>
                                     <span id="diagHttps" class="font-semibold text-rose-500">A verificar...</span>
@@ -327,25 +339,19 @@
                                     </button>
                                 </div>
                                 
-                                <div class="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs space-y-2 leading-relaxed">
-                                    <p class="font-bold">⚠️ Tem estados a vermelho no diagnóstico?</p>
-                                    <p>O GitHub Pages precisa de ler os ficheiros físicos correspondentes. Use os botões acima para gerar e descarregar o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">sw.js</code> e o <code class="font-mono bg-white/60 px-1 py-0.5 rounded">manifest.json</code> e envie-os para a raiz do seu repositório no GitHub (no mesmo nível do <code class="font-mono bg-white/60 px-1 py-0.5 rounded">index.html</code>).</p>
-                                </div>
-
-                                <!-- Instrução de Instalação Manual baseada no SO -->
                                 <div id="manualInstructions" class="p-4 bg-slate-100 border border-slate-200 rounded-xl text-xs space-y-2">
                                     <!-- Injetado dinamicamente via JS -->
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CONFIGURAÇÃO DE NUVEM PRÓPRIA (EXCLUSIVA PARA GITHUB PAGES) -->
+                        <!-- CONFIGURAÇÃO DE NUVEM PRÓPRIA -->
                         <div class="pt-6 border-t border-slate-200">
                             <h3 class="text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                                 <span>☁️</span> Sincronização em Nuvem Própria (Opcional)
                             </h3>
                             <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-                                Se implantou o aplicativo no GitHub Pages ou Vercel e deseja sincronizar os dados entre múltiplos dispositivos, insira abaixo a configuração em JSON do seu próprio projeto do Firebase Firestore. Deixe em branco para usar no modo de armazenamento local de segurança.
+                                Cole as suas configurações JSON do Firebase Firestore abaixo para sincronização entre aparelhos.
                             </p>
                             <textarea id="cfgCustomFirebase" placeholder='{\n  "apiKey": "SUA_API_KEY",\n  "authDomain": "SEU_DOMAIN",\n  "projectId": "SEU_PROJECT_ID",\n  "storageBucket": "...",\n  "messagingSenderId": "...",\n  "appId": "..."\n}' class="w-full h-32 p-2 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-slate-50"></textarea>
                             <button onclick="window.saveCustomFirebase()" class="mt-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all shadow-sm">
@@ -353,13 +359,13 @@
                             </button>
                         </div>
 
-                        <!-- ZONA DE PERIGO (LIMPEZA DE DADOS LOCAIS) -->
+                        <!-- ZONA DE PERIGO (LIMPEZA) -->
                         <div class="pt-6 border-t border-rose-100 bg-rose-50/20 p-4 rounded-xl border border-rose-200/40">
                             <h3 class="text-sm font-bold text-rose-700 mb-1 flex items-center gap-1.5">
                                 <span>🚨</span> Zona de Perigo
                             </h3>
                             <p class="text-xs text-rose-600 mb-3 leading-relaxed">
-                                Tem certeza de que deseja reiniciar a aplicação? Esta ação irá remover permanentemente todas as suas configurações salvas, incluindo o catálogo de produtos e os itens do carrinho neste dispositivo.
+                                Esta operação remove permanentemente o catálogo, a empresa e os carrinhos salvos neste dispositivo.
                             </p>
                             <button onclick="window.showClearDataConfirm()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
                                 <span>🗑️</span> Limpar Todos os Dados Locais
@@ -371,14 +377,12 @@
             </div>
         </div>
 
-        <!-- COLUNA DIREITA: Preview da Impressão (Focado estritamente em Monitorização) -->
+        <!-- COLUNA DIREITA: Preview da Impressão -->
         <div class="lg:col-span-5 flex flex-col gap-6">
-            
-            <!-- Preview Físico em Tela -->
             <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col">
                 <div class="mb-4 bg-amber-50/60 p-4 rounded-xl border border-amber-100/40">
                     <h3 class="text-xs font-bold text-amber-900 mb-1">Simulador Dinâmico de Papel Térmico</h3>
-                    <p class="text-[11px] text-amber-700 leading-normal">O módulo abaixo calcula dinamicamente a quebra de linha de caracteres conforme a largura física configurada da bobina de papel térmica para evitar impressões corrompidas ou desalinhadas.</p>
+                    <p class="text-[11px] text-amber-700 leading-normal">Simule e visualize a quebra física de linhas antes de realizar a impressão.</p>
                 </div>
 
                 <div class="bg-amber-50/40 border border-amber-200/50 rounded-2xl p-4 flex justify-center shadow-inner overflow-hidden">
@@ -398,7 +402,7 @@
                     <h3 class="text-lg font-bold text-slate-800" id="optModalProductName">Nome do Produto</h3>
                     <p class="text-xs text-slate-400" id="optModalProductBasePrice">Preço Base: R$ 0,00</p>
                 </div>
-                <button onclick="closeOptionsModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                <button onclick="window.closeOptionsModal()" class="text-slate-400 hover:text-slate-600 p-1">
                     <span>❌</span>
                 </button>
             </div>
@@ -417,24 +421,24 @@
                 </div>
                 
                 <div class="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden">
-                    <button onclick="changeModalQty(-1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold">-</button>
+                    <button onclick="window.changeModalQty(-1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold">-</button>
                     <span class="px-3.5 py-1 text-xs font-bold text-slate-800" id="optModalQty">1</span>
-                    <button onclick="changeModalQty(1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold">+</button>
+                    <button onclick="window.changeModalQty(1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold">+</button>
                 </div>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="closeOptionsModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">
+                <button onclick="window.closeOptionsModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">
                     Cancelar
                 </button>
-                <button onclick="confirmProductWithOptions()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1">
+                <button onclick="window.confirmProductWithOptions()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1">
                     <span>✔️</span> Adicionar
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 2: Alerta / Log -->
+    <!-- MODAL 2: Alerta / Mensagem Personalizada -->
     <div id="customModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 transition-transform scale-95" id="modalContainer">
             <div class="flex items-start gap-4">
@@ -447,20 +451,20 @@
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-2">
-                <button onclick="closeModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors">Entendi</button>
+                <button onclick="window.closeModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors">Entendi</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 3: Validação de Senha de Segurança para Configurações (⚙️) -->
+    <!-- MODAL 3: Segurança de Acesso Configurações -->
     <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 transition-all scale-100">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-lg font-bold text-slate-800">Acesso Restrito 🔒</h3>
-                    <p class="text-xs text-slate-400">Insira a senha de acesso para entrar nas configurações técnicas.</p>
+                    <p class="text-xs text-slate-400">Insira a senha de acesso para as configurações técnicas.</p>
                 </div>
-                <button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                <button onclick="window.closePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
                     <span>❌</span>
                 </button>
             </div>
@@ -469,17 +473,17 @@
                 <p id="passwordError" class="text-xs text-rose-500 font-semibold hidden">Senha incorreta. Tente novamente.</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="closePasswordModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">
+                <button onclick="window.closePasswordModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">
                     Cancelar
                 </button>
-                <button onclick="validateConfigPassword()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1">
+                <button onclick="window.validateConfigPassword()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1">
                     <span>✔️</span> Confirmar
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 4: Confirmação de Ação Destrutiva (Limpeza) -->
+    <!-- MODAL 4: Confirmação de Ação Destrutiva -->
     <div id="confirmActionModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 transition-all scale-100">
             <div class="flex items-start gap-4">
@@ -488,7 +492,7 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="text-base font-bold text-slate-800">Deseja apagar todos os dados?</h3>
-                    <p class="text-sm text-slate-500 mt-2">Esta operação é definitiva e apagará todos os dados de produtos cadastrados, informações da empresa e carrinhos salvos localmente neste aparelho.</p>
+                    <p class="text-sm text-slate-500 mt-2">Esta operação é definitiva e limpará todo o seu portfólio.</p>
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-2.5">
@@ -502,10 +506,8 @@
         </div>
     </div>
 
-    <!-- LÓGICA DO SISTEMA -->
+    <!-- LÓGICA CORE DO APLICATIVO -->
     <script>
-        // --- 1. ESTADO EM MEMÓRIA & PERSISTÊNCIA LOCAL (LocalStorage) ---
-        
         let catalog = [
             { id: 1, nome: "Pizza Calabresa G", preco: 45.00, opcoes: [
                 { nome: "Borda com Queijo", preco: 8.00 },
@@ -518,10 +520,8 @@
                 { nome: "Sem Maionese", preco: 0.00 }
             ]},
             { id: 3, nome: "Refrigerante Lata", preco: 6.50, opcoes: [
-                { nome: "Gelo e Limão", preco: 0.00 },
-                { nome: "Temperatura Ambiente", preco: 0.00 }
-            ]},
-            { id: 4, nome: "Água Mineral", preco: 4.00, opcoes: [] }
+                { nome: "Gelo e Limão", preco: 0.00 }
+            ]}
         ];
 
         let cart = [];
@@ -530,9 +530,8 @@
         let currentModalQty = 1;
         let paperSize = 58;
         let columns = 32;
-        let editingProductId = null; // ID do produto sendo editado
-
-        let isConfigUnlocked = false; // Estado de bloqueio da aba configurações
+        let editingProductId = null;
+        let isConfigUnlocked = false;
 
         let device = null;
         let server = null;
@@ -542,7 +541,6 @@
         const UUID_SERVICE_PRINTER = "000018f0-0000-1000-8000-00805f9b34fb"; 
         const UUID_CHARACTERISTIC_WRITE = "00002af1-0000-1000-8000-00805f9b34fb"; 
 
-        // Recuperar dados persistidos localmente
         function loadLocalData() {
             try {
                 const localCatalog = localStorage.getItem('comanda_catalog');
@@ -568,7 +566,6 @@
             }
         }
 
-        // Salvar localmente
         function saveLocalData() {
             try {
                 localStorage.setItem('comanda_catalog', JSON.stringify(catalog));
@@ -581,10 +578,7 @@
             }
         }
 
-        // --- 2. SISTEMA DE ABAS E OPERAÇÃO DO APP ---
-
         function switchTab(tabId) {
-            // Se tentar aceder às configurações sem desbloquear, mostra modal de senha
             if (tabId === 'Config' && !isConfigUnlocked) {
                 openPasswordModal();
                 return;
@@ -606,22 +600,14 @@
 
             const activeBtn = document.getElementById('btnTab' + tabId);
             if (activeBtn) {
-                if (tabId === 'Config') {
-                    activeBtn.className = "py-3 px-4 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
-                } else {
-                    activeBtn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
-                }
+                activeBtn.className = "flex-1 py-3 text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white shadow-sm";
             }
         }
 
-        // Métodos de Controlo do Modal de Segurança
         function openPasswordModal() {
             document.getElementById('pwaConfigPassword').value = '';
             document.getElementById('passwordError').classList.add('hidden');
             document.getElementById('passwordModal').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('pwaConfigPassword').focus();
-            }, 100);
         }
 
         function closePasswordModal() {
@@ -641,28 +627,115 @@
 
         function setPaperSize(size) {
             paperSize = size;
+            columns = (size === 58) ? 32 : 48;
+            
             const btn58 = document.getElementById('btnSize58');
             const btn80 = document.getElementById('btnSize80');
             const simulatedReceipt = document.getElementById('simulatedReceipt');
 
             if (size === 58) {
-                columns = 32;
                 if (btn58) btn58.className = "py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700";
                 if (btn80) btn80.className = "py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600";
-                if (simulatedReceipt) {
-                    simulatedReceipt.style.width = "280px";
-                    simulatedReceipt.style.fontSize = "11px";
-                }
+                if (simulatedReceipt) { simulatedReceipt.style.width = "280px"; simulatedReceipt.style.fontSize = "11px"; }
             } else {
-                columns = 48;
                 if (btn58) btn58.className = "py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-slate-200 hover:border-slate-300 text-slate-600";
                 if (btn80) btn80.className = "py-2.5 rounded-xl border-2 font-bold text-sm transition-all flex flex-col items-center justify-center gap-0.5 border-indigo-600 bg-indigo-50 text-indigo-700";
-                if (simulatedReceipt) {
-                    simulatedReceipt.style.width = "380px";
-                    simulatedReceipt.style.fontSize = "12px";
-                }
+                if (simulatedReceipt) { simulatedReceipt.style.width = "380px"; simulatedReceipt.style.fontSize = "12px"; }
             }
             renderPreview();
+        }
+
+        function centerText(text, cols) {
+            if (text.length >= cols) return text.substring(0, cols);
+            const left = Math.floor((cols - text.length) / 2);
+            return " ".repeat(left) + text;
+        }
+
+        function formatRow(leftText, rightText, cols) {
+            const space = cols - leftText.length - rightText.length;
+            if (space > 0) return leftText + " ".repeat(space) + rightText;
+            return leftText.substring(0, cols - rightText.length - 1) + " " + rightText;
+        }
+
+        function getReceiptText() {
+            const empresa = (document.getElementById('cfgEmpresa').value || 'Pizzaria Bella Italia').toUpperCase();
+            const telefone = document.getElementById('cfgTelefone').value || '';
+            const endereco = document.getElementById('cfgEndereco').value || '';
+            const identificacao = document.getElementById('comandaIdentificacao').value || 'Mesa 04';
+            const atendente = document.getElementById('comandaAtendente').value || 'Carlos';
+            const observacao = document.getElementById('comandaObservacao').value || '';
+            const layout = document.getElementById('cfgLayout').value;
+
+            const date = new Date();
+            const formattedDate = date.toLocaleDateString('pt-PT');
+            const formattedTime = date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+            const divider = "-".repeat(columns);
+            const doubleDivider = "=".repeat(columns);
+
+            let out = "";
+            out += centerText(empresa, columns) + "\n";
+            if (endereco) out += centerText(endereco, columns) + "\n";
+            if (telefone) out += centerText(telefone, columns) + "\n";
+            out += divider + "\n";
+            out += formatRow(`IDENTIF.: ${identificacao}`, `ATEND.: ${atendente}`, columns) + "\n";
+            out += formatRow(`DATA: ${formattedDate}`, `HORA: ${formattedTime}`, columns) + "\n";
+            out += divider + "\n";
+
+            if (layout === 'via_completa') {
+                out += formatRow("QTD ITEM", "TOTAL", columns) + "\n";
+            } else {
+                out += "QTD ITEM (VIA COZINHA)\n";
+            }
+            out += divider + "\n";
+
+            let grandTotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.qtd * item.precoFinal;
+                grandTotal += itemTotal;
+
+                if (layout === 'via_completa') {
+                    out += formatRow(`${item.qtd}x ${item.nome}`, `R$ ${itemTotal.toFixed(2)}`, columns) + "\n";
+                } else {
+                    out += `${item.qtd}x ${item.nome}\n`;
+                }
+
+                if (item.opcoesSelecionadas && item.opcoesSelecionadas.length > 0) {
+                    item.opcoesSelecionadas.forEach(opt => {
+                        if (layout === 'via_completa') {
+                            const optText = `  + ${opt.nome}`;
+                            const optPrice = opt.preco > 0 ? `+R$ ${(opt.preco * item.qtd).toFixed(2)}` : '';
+                            out += formatRow(optText, optPrice, columns) + "\n";
+                        } else {
+                            out += `  + ${opt.nome}\n`;
+                        }
+                    });
+                }
+            });
+
+            out += divider + "\n";
+
+            if (layout === 'via_completa') {
+                out += formatRow("TOTAL DA CONTA:", `R$ ${grandTotal.toFixed(2)}`, columns) + "\n";
+                out += doubleDivider + "\n";
+            }
+
+            if (observacao) {
+                out += `OBS: ${observacao}\n`;
+                out += divider + "\n";
+            }
+
+            out += centerText("OBRIGADO PELA PREFERENCIA", columns) + "\n";
+            out += centerText("Comanda Print PWA", columns) + "\n";
+
+            return out;
+        }
+
+        function renderPreview() {
+            const el = document.getElementById('simulatedReceipt');
+            if (el) {
+                el.textContent = getReceiptText();
+            }
         }
 
         function renderCatalog() {
@@ -677,7 +750,6 @@
                     const btn = document.createElement('button');
                     btn.onclick = () => handleProductSelection(prod.id);
                     btn.className = "px-3 py-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 border border-transparent hover:border-indigo-100 text-xs font-medium rounded-xl transition-all flex items-center gap-1.5 shadow-sm";
-                    
                     const badgeOpt = prod.opcoes && prod.opcoes.length > 0 ? `<span class="bg-indigo-200 text-indigo-800 text-[9px] px-1 py-0.5 rounded ml-1 font-bold">+${prod.opcoes.length}</span>` : '';
                     btn.innerHTML = `🛍️ ${prod.nome} <span class="text-slate-400 font-normal">R$ ${prod.preco.toFixed(2)}</span> ${badgeOpt}`;
                     fastContainer.appendChild(btn);
@@ -692,12 +764,8 @@
                             <p class="text-slate-400 text-[10px]">Base: R$ ${prod.preco.toFixed(2)} | ${prod.opcoes.length} op.</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button onclick="editCatalogProduct(${prod.id})" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded transition-all font-bold" title="Editar Produto">
-                                <span>✏️</span>
-                            </button>
-                            <button onclick="deleteCatalogProduct(${prod.id})" class="text-rose-500 hover:bg-rose-50 p-1.5 rounded transition-all font-bold" title="Excluir Produto">
-                                <span>❌</span>
-                            </button>
+                            <button onclick="window.editCatalogProduct(${prod.id})" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded transition-all font-bold" title="Editar">✏️</button>
+                            <button onclick="window.deleteCatalogProduct(${prod.id})" class="text-rose-500 hover:bg-rose-50 p-1.5 rounded transition-all font-bold" title="Excluir">❌</button>
                         </div>
                     `;
                     listContainer.appendChild(line);
@@ -708,19 +776,17 @@
         function addTempOption() {
             const optNomeEl = document.getElementById('regOptNome');
             const optPrecoEl = document.getElementById('regOptPreco');
-
             const nome = optNomeEl.value.trim();
             const preco = parseFloat(optPrecoEl.value) || 0;
 
             if (!nome) {
-                showAlert("Campo Obrigatório", "Insira um nome válido para o modificador.", "error");
+                showAlert("Campo Obrigatório", "Insira um nome válido para a opção.", "error");
                 return;
             }
 
             tempOptions.push({ nome, preco });
             optNomeEl.value = '';
             optPrecoEl.value = '';
-
             renderTempOptions();
         }
 
@@ -728,14 +794,10 @@
             const container = document.getElementById('tempOptionsContainer');
             if (!container) return;
             container.innerHTML = '';
-
             tempOptions.forEach((opt, index) => {
                 const badge = document.createElement('span');
                 badge.className = "inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-full border border-indigo-100 font-medium";
-                badge.innerHTML = `
-                    ${opt.nome} (+R$ ${opt.preco.toFixed(2)})
-                    <button type="button" onclick="removeTempOption(${index})" class="text-indigo-400 hover:text-indigo-600 font-bold ml-1">×</button>
-                `;
+                badge.innerHTML = `${opt.nome} (+R$ ${opt.preco.toFixed(2)}) <button type="button" onclick="window.removeTempOption(${index})" class="text-indigo-400 hover:text-indigo-600 font-bold ml-1">×</button>`;
                 container.appendChild(badge);
             });
         }
@@ -759,10 +821,7 @@
             document.getElementById('btnCancelEdit').classList.remove('hidden');
 
             renderTempOptions();
-            
-            // Focar no input do nome do produto e subir um pouco a página (smooth scroll)
             document.getElementById('regNome').focus();
-            document.getElementById('regNome').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function cancelEditProduct() {
@@ -781,46 +840,37 @@
         function saveNewProduct() {
             const nomeEl = document.getElementById('regNome');
             const precoEl = document.getElementById('regPreco');
-
             const nome = nomeEl.value.trim();
             const preco = parseFloat(precoEl.value);
 
-            if (!nome) {
-                showAlert("Campo Obrigatório", "Dê um nome ao produto antes de o registar.", "error");
-                return;
-            }
-            if (isNaN(preco) || preco < 0) {
-                showAlert("Preço Inválido", "Por favor introduza um preço base válido.", "error");
+            if (!nome || isNaN(preco) || preco < 0) {
+                showAlert("Campos Inválidos", "Preencha corretamente os dados do produto.", "error");
                 return;
             }
 
             if (editingProductId !== null) {
-                // Modo Edição
                 const index = catalog.findIndex(p => p.id === editingProductId);
                 if (index !== -1) {
                     catalog[index].nome = nome;
                     catalog[index].preco = preco;
                     catalog[index].opcoes = [...tempOptions];
                 }
-                showAlert("Produto Atualizado", `"${nome}" foi atualizado com sucesso!`, "success");
+                showAlert("Produto Atualizado", `"${nome}" foi modificado!`, "success");
                 cancelEditProduct();
             } else {
-                // Modo Criação
-                const newProduct = {
+                catalog.push({
                     id: Date.now(),
                     nome: nome,
                     preco: preco,
                     opcoes: [...tempOptions]
-                };
-                catalog.push(newProduct);
+                });
                 nomeEl.value = '';
                 precoEl.value = '';
                 tempOptions = [];
                 renderTempOptions();
-                showAlert("Produto Registado", `"${nome}" foi inserido com sucesso!`, "success");
+                showAlert("Produto Registado", `"${nome}" foi adicionado.`, "success");
             }
-            
-            // Sincronizar Nuvem (se ativo) ou LocalStorage
+
             if (window.firebaseSyncCatalog) {
                 window.firebaseSyncCatalog(catalog);
             } else {
@@ -849,7 +899,6 @@
                 addToCartDirect(product);
                 return;
             }
-
             openOptionsModal(product);
         }
 
@@ -896,7 +945,6 @@
                     listContainer.appendChild(label);
                 });
             }
-
             updateModalPrice();
             document.getElementById('optionsModal').classList.remove('hidden');
         }
@@ -906,78 +954,8 @@
             currentModalProduct = null;
         }
 
-        // Diagnóstico das condições PWA em tempo real (Ativo e Preventivo)
-        function runPWADiagnostics() {
-            // 1. Diagnóstico HTTPS
-            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const diagHttps = document.getElementById('diagHttps');
-            if (diagHttps) {
-                diagHttps.textContent = isHttps ? "Seguro ✔️" : "Inseguro (Requer HTTPS) ❌";
-                diagHttps.className = isHttps ? "font-semibold text-emerald-600" : "font-semibold text-rose-500";
-            }
-
-            // 2. Modo de Exibição
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            const diagDisplay = document.getElementById('diagDisplayMode');
-            if (diagDisplay) {
-                diagDisplay.textContent = isStandalone ? "App Standalone (Instalado) 🎉" : "Navegador Comum";
-                diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
-            }
-
-            // 3. Verificação Ativa do manifesto físico na raiz do projeto (Evita que fique "Pendente")
-            const diagInstall = document.getElementById('diagInstallable');
-            fetch('./manifest.json')
-                .then(res => {
-                    if (res.ok) {
-                        if (diagInstall) {
-                            diagInstall.textContent = "Detetado (manifest.json OK) ✔️";
-                            diagInstall.className = "font-semibold text-emerald-600";
-                        }
-                    } else {
-                        if (diagInstall) {
-                            diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
-                            diagInstall.className = "font-semibold text-rose-500";
-                        }
-                    }
-                })
-                .catch(() => {
-                    if (diagInstall) {
-                        diagInstall.textContent = "Falta o ficheiro manifest.json ⚠️";
-                        diagInstall.className = "font-semibold text-rose-500";
-                    }
-                });
-
-            // 4. Ajuste de instruções manuais conforme o Sistema Operativo detetado
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const manualContainer = document.getElementById('manualInstructions');
-            if (manualContainer) {
-                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                    manualContainer.innerHTML = `
-                        <p class="font-bold text-indigo-900 flex items-center gap-1">🍏 Manual para iPhone (iOS):</p>
-                        <p class="mt-1">O iOS bloqueia instalações automáticas de PWA fora da App Store. Siga estes passos simples para ter o aplicativo como App:</p>
-                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
-                            <li>Abra o link no navegador <strong>Safari</strong> ou <strong>Bluefy</strong>.</li>
-                            <li>Toque no botão de <strong>Partilhar</strong> (ícone de quadrado com seta para cima no fundo).</li>
-                            <li>Role a lista para baixo e escolha <strong>"Adicionar ao Ecrã Principal"</strong>.</li>
-                        </ol>
-                    `;
-                } else {
-                    manualContainer.innerHTML = `
-                        <p class="font-bold text-indigo-900 flex items-center gap-1">🤖 Manual para Android (Chrome/Edge):</p>
-                        <p class="mt-1">Se o botão "Instalar App" acima não carregar, pode forçar a instalação do atalho inteligente manualmente:</p>
-                        <ol class="list-decimal list-inside space-y-1 mt-2 pl-1">
-                            <li>Clique nos <strong>três pontos</strong> do canto superior direito do seu navegador móvel.</li>
-                            <li>Selecione a opção <strong>"Instalar aplicação"</strong> ou <strong>"Adicionar ao ecrã principal"</strong>.</li>
-                            <li>A aplicação correrá com desempenho nativo e sem barras de navegação!</li>
-                        </ol>
-                    `;
-                }
-            }
-        }
-
         function getModalCalculation() {
             if (!currentModalProduct) return { base: 0, extra: 0, unit: 0, total: 0, selected: [] };
-
             const base = currentModalProduct.preco;
             let extra = 0;
             const selected = [];
@@ -994,7 +972,6 @@
 
             const unit = base + extra;
             const total = unit * currentModalQty;
-
             return { base, extra, unit, total, selected };
         }
 
@@ -1039,7 +1016,6 @@
             const emptyState = document.getElementById('cartEmptyState');
             
             if (!container || !emptyState) return;
-
             if (cart.length === 0) {
                 container.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -1077,9 +1053,7 @@
                             <div class="w-20 text-right">
                                 <p class="text-xs font-bold text-slate-800">R$ ${(item.qtd * item.precoFinal).toFixed(2)}</p>
                             </div>
-                            <button onclick="window.removeItem(${item.id})" class="text-slate-400 hover:text-rose-500 p-1.5 transition-colors">
-                                <span>❌</span>
-                            </button>
+                            <button onclick="window.removeItem(${item.id})" class="text-slate-400 hover:text-rose-500 p-1.5 transition-colors">❌</button>
                         </div>
                     </div>
                 `;
@@ -1090,7 +1064,6 @@
         function updateQty(id, change) {
             const item = cart.find(i => i.id === id);
             if (item) {
-                item.text_qty = true;
                 item.qtd += change;
                 if (item.qtd <= 0) {
                     removeItem(id);
@@ -1128,351 +1101,69 @@
             renderPreview();
         }
 
-        // --- 3. GERAÇÃO DE TEXTO ESC/POS ---
-
-        function formatLine(left, right) {
-            const spaceNeeded = columns - (left.length + right.length);
-            if (spaceNeeded <= 0) {
-                const truncatedLeft = left.substring(0, columns - right.length - 1);
-                return truncatedLeft + " " + right;
-            }
-            return left + " ".repeat(spaceNeeded) + right;
-        }
-
-        function formatCenter(text) {
-            if (text.length >= columns) return text.substring(0, columns);
-            const spaces = Math.floor((columns - text.length) / 2);
-            return " ".repeat(spaces) + text;
-        }
-
-        // Monitorar alteração nas configurações para disparar o diagnóstico de forma estática
-        window.addEventListener('load', () => {
-            runPWADiagnostics();
-        });
-
-        // Configurando Event Listener para a tecla Enter no modal de senha
-        window.addEventListener('DOMContentLoaded', () => {
-            const pwdInput = document.getElementById('pwaConfigPassword');
-            if (pwdInput) {
-                pwdInput.addEventListener('keyup', (e) => {
-                    if (e.key === 'Enter') {
-                        validateConfigPassword();
-                    }
-                });
-            }
-        });
-
-        function getDivider() {
-            return "-".repeat(columns);
-        }
-
-        function getHeaderBlock() {
-            const nome = document.getElementById('cfgEmpresa').value || "Comanda Digital";
-            const tel = document.getElementById('cfgTelefone').value;
-            const end = document.getElementById('cfgEndereco').value;
-
-            let result = "";
-            result += formatCenter(nome.toUpperCase()) + "\n";
-            if (tel) result += formatCenter(tel) + "\n";
-            if (end) result += formatCenter(end) + "\n";
-            return result;
-        }
-
-        function generateReceiptText() {
-            const layout = document.getElementById('cfgLayout').value;
-            const identificacao = document.getElementById('comandaIdentificacao').value || "GERAL";
-            const atendente = document.getElementById('comandaAtendente').value || "Balcao";
-            const obs = document.getElementById('comandaObservacao').value;
-
-            const now = new Date();
-            const dataStr = now.toLocaleDateString('pt-BR');
-            const horaStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-            let out = "";
-            out += getDivider() + "\n";
-            out += getHeaderBlock();
-            out += getDivider() + "\n";
-            
-            const viaTitulo = layout === 'via_cozinha' ? "VIA DE PREPARO / COZINHA" : "CONSUMO / CONTA PARCIAL";
-            out += formatCenter(viaTitulo) + "\n";
-            out += getDivider() + "\n";
-
-            out += formatLine(`LOCAL: ${identificacao}`, `ATEND.: ${atendente}`) + "\n";
-            out += formatLine(`DATA: ${dataStr}`, `HORA: ${horaStr}`) + "\n";
-            out += getDivider() + "\n";
-
-            if (layout === 'via_cozinha') {
-                out += "QTD  ITEM / CONFIGURACAO\n";
-            } else {
-                out += formatLine("QTD  ITEM / CONFIGURACAO", "TOTAL (R$)") + "\n";
-            }
-            out += getDivider() + "\n";
-
-            let totalGeral = 0;
-            if (cart.length === 0) {
-                out += formatCenter("(NENHUM ITEM SELECIONADO)") + "\n";
-            } else {
-                cart.forEach(item => {
-                    const subtotal = item.qtd * item.precoFinal;
-                    totalGeral += subtotal;
-
-                    const labelItem = `${String(item.qtd).padStart(2, '0')}x  ${item.nome}`;
-                    if (layout === 'via_cozinha') {
-                        out += `${labelItem}\n`;
-                    } else {
-                        out += formatLine(labelItem, subtotal.toFixed(2)) + "\n";
-                    }
-
-                    if (item.opcoesSelecionadas && item.opcoesSelecionadas.length > 0) {
-                        item.opcoesSelecionadas.forEach(opt => {
-                            if (layout === 'via_cozinha') {
-                                out += `   + ${opt.nome}\n`;
-                            } else {
-                                const precoStr = opt.preco > 0 ? `+${opt.preco.toFixed(2)}` : 'gratis';
-                                out += formatLine(`   + ${opt.nome}`, precoStr) + "\n";
-                            }
-                        });
-                    }
-                });
-            }
-
-            out += getDivider() + "\n";
-
-            if (layout !== 'via_cozinha' && cart.length > 0) {
-                out += formatLine("TOTAL DA COMANDA", `R$ ${totalGeral.toFixed(2)}`) + "\n";
-                out += getDivider() + "\n";
-            }
-
-            if (obs) {
-                out += "OBSERVACOES:\n";
-                let words = obs.split(' ');
-                let line = "  ";
-                words.forEach(word => {
-                    if ((line + " " + word).length > columns) {
-                        out += line + "\n";
-                        line = "  " + word;
-                    } else {
-                        line += (line === "  " ? "" : " ") + word;
-                    }
-                });
-                out += line + "\n";
-                out += getDivider() + "\n";
-            }
-
-            out += "\n";
-            out += formatCenter("OBRIGADO PELA PREFERENCIA") + "\n";
-            out += formatCenter("Volte Sempre!") + "\n";
-            out += "\n\n\n";
-
-            return out;
-        }
-
-        function renderPreview() {
-            const previewText = generateReceiptText();
-            const elem = document.getElementById('simulatedReceipt');
-            if (elem) elem.textContent = previewText;
-        }
-
-        // --- 4. CONEXÃO E IMPRESSÃO BLUETOOTH ---
-
-        document.getElementById('btnConnect').addEventListener('click', async () => {
-            await connectBluetooth();
-        });
-
-        async function connectBluetooth() {
-            updateBtStatus("A ligar...", "amber");
-            
-            if (!navigator.bluetooth) {
-                showAlert("Navegador Incompatível", "O seu navegador ou dispositivo não suporta comunicação Web Bluetooth nativa. Utilize o Google Chrome no Android ou Desktop.", "error");
-                updateBtStatus("Desconectado", "red");
-                return;
-            }
-
+        function exportCatalog() {
             try {
-                device = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { services: [UUID_SERVICE_PRINTER] }
-                    ],
-                    optionalServices: [UUID_SERVICE_PRINTER]
-                });
-
-                updateBtStatus("A emparelhar...", "amber");
-                device.addEventListener('gattserverdisconnected', onDisconnected);
-
-                server = await device.gatt.connect();
-                service = await server.getPrimaryService(UUID_SERVICE_PRINTER);
-                characteristic = await service.getCharacteristic(UUID_CHARACTERISTIC_WRITE);
-
-                updateBtStatus("Conectado", "emerald");
-                showAlert("Conectado!", `Emparelhamento concluído com: ${device.name}`, "success");
-
-            } catch (error) {
-                console.error("Erro Bluetooth:", error);
-                updateBtStatus("Desconectado", "red");
-                showAlert("Falha na Ligação", "Não foi possível conectar à impressora. Confirme se está ligada e disponível.\n\nDetalhes: " + error.message, "error");
-            }
-        }
-
-        function onDisconnected() {
-            updateBtStatus("Desconectado", "red");
-            showAlert("Ligação Perdida", "A ligação com a impressora térmica foi cortada.", "error");
-            device = null;
-            server = null;
-            service = null;
-            characteristic = null;
-        }
-
-        function updateBtStatus(text, color) {
-            const badge = document.getElementById('btStatusBadge');
-            const dot = document.getElementById('btStatusDot');
-            const statusTxt = document.getElementById('btStatusText');
-
-            if (!badge || !dot || !statusTxt) return;
-
-            statusTxt.textContent = text;
-            badge.className = `flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all`;
-            dot.className = "w-2.5 h-2.5 rounded-full";
-
-            if (color === "emerald") {
-                badge.classList.add("bg-emerald-500/10", "text-emerald-500", "border-emerald-500/20");
-                dot.classList.add("bg-emerald-500");
-            } else if (color === "amber") {
-                badge.classList.add("bg-amber-500/10", "text-amber-500", "border-amber-500/20");
-                dot.classList.add("bg-amber-500", "animate-pulse");
-            } else {
-                badge.classList.add("bg-rose-500/10", "text-rose-500", "border-rose-500/20");
-                dot.classList.add("bg-rose-500");
-            }
-        }
-
-        async function printBluetooth() {
-            if (!characteristic) {
-                showAlert("Impressora Desconectada", "Conecte a sua impressora térmica Bluetooth utilizando o botão de emparelhamento no cabeçalho antes de mandar imprimir.", "error");
-                return;
-            }
-
-            try {
-                const ESC_INIT = new Uint8Array([27, 64]);
-                await writeData(ESC_INIT);
-
-                const text = generateReceiptText();
-                const cleanText = removeAccents(text);
-                const encoder = new TextEncoder();
-                const textBytes = encoder.encode(cleanText);
-
-                const chunkSize = 80;
-                for (let i = 0; i < textBytes.length; i += chunkSize) {
-                    const chunk = textBytes.slice(i, i + chunkSize);
-                    await writeData(chunk);
+                if (catalog.length === 0) {
+                    showAlert("Catálogo Vazio", "Não existem produtos registados.", "error");
+                    return;
                 }
-
-                const FEED_AND_CUT = new Uint8Array([10, 10, 10, 29, 86, 0]);
-                await writeData(FEED_AND_CUT);
-
-                showAlert("A Imprimir", "Dados enviados com sucesso para a bobina da impressora térmica!", "success");
-
-                clearCart();
-
-            } catch (error) {
-                console.error("Erro na transmissão:", error);
-                showAlert("Falha na Transmissão", "Erro ao tentar enviar bytes de impressão: " + error.message, "error");
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalog, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                const fileDate = new Date().toISOString().slice(0, 10);
+                downloadAnchor.setAttribute("download", `comanda_print_produtos_${fileDate}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showAlert("Backup Concluído", "Cópia de segurança guardada!", "success");
+            } catch (e) {
+                showAlert("Erro na Exportação", e.message, "error");
             }
         }
 
-        async function writeData(bytes) {
-            if (!characteristic) return;
-            await characteristic.writeValue(bytes);
-            await new Promise(resolve => setTimeout(resolve, 50));
-        }
+        function importCatalog(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        // Corrige acentuação no papel
-        function removeAccents(str) {
-            return str
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[çÇ]/g, 'c')
-                .replace(/[ºª°]/g, '.');
-        }
-
-        function printBrowser() {
-            const printContent = generateReceiptText();
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Comanda - Impressão</title>
-                    <style>
-                        body {
-                            font-family: 'Courier New', Courier, monospace;
-                            padding: 20px;
-                            max-width: ${paperSize === 58 ? '300px' : '420px'};
-                            margin: 0 auto;
-                            white-space: pre-wrap;
-                            font-size: 13px;
-                            line-height: 1.2;
-                            color: #000;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${printContent.replace(/\n/g, '<br>')}
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(() => { window.close(); }, 500);
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-
-            clearCart();
-        }
-
-        // --- 5. INTERFACE DOS MODAIS DE FEEDBACK ---
-
-        function showAlert(title, message, iconType = "info") {
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalMessage').textContent = message;
-            
-            const iconContainer = document.getElementById('modalIconContainer');
-            if (iconType === "success") {
-                iconContainer.innerHTML = '<span>✔️</span>';
-                iconContainer.className = "p-3 bg-emerald-50 rounded-full text-emerald-600 font-bold";
-            } else if (iconType === "error") {
-                iconContainer.innerHTML = '<span>⚠️</span>';
-                iconContainer.className = "p-3 bg-rose-50 rounded-full text-rose-600 font-bold";
-            } else {
-                iconContainer.innerHTML = '<span>ℹ️</span>';
-                iconContainer.className = "p-3 bg-indigo-50 rounded-full text-indigo-600 font-bold";
-            }
-
-            const modal = document.getElementById('customModal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('customModal');
-            if (modal) modal.classList.add('hidden');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedData)) throw new Error("JSON inválido.");
+                    catalog = importedData;
+                    if (window.firebaseSyncCatalog) {
+                        window.firebaseSyncCatalog(catalog);
+                    } else {
+                        saveLocalData();
+                    }
+                    renderCatalog();
+                    renderPreview();
+                    showAlert("Catálogo Restaurado", `Sucesso! Importados ${catalog.length} produtos.`, "success");
+                } catch (err) {
+                    showAlert("Erro na Importação", err.message, "error");
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
         }
 
         function saveCustomFirebase() {
             const jsonText = document.getElementById('cfgCustomFirebase').value.trim();
             if (!jsonText) {
                 localStorage.removeItem('comanda_custom_firebase');
-                showAlert("Nuvem Desativada", "Configuração removida. O aplicativo está agora no modo local estável.", "info");
+                showAlert("Nuvem Desativada", "A reiniciar para o modo local...", "info");
                 setTimeout(() => window.location.reload(), 1500);
                 return;
             }
 
             try {
-                JSON.parse(jsonText); // Verifica se é um JSON válido
+                JSON.parse(jsonText);
                 localStorage.setItem('comanda_custom_firebase', jsonText);
-                showAlert("Nuvem Configurada", "Credenciais guardadas com sucesso. A reiniciar o aplicativo para conectar...", "success");
+                showAlert("Nuvem Configurada", "A ligar à base de dados...", "success");
                 setTimeout(() => window.location.reload(), 1500);
             } catch (e) {
-                showAlert("Erro no Formato", "A configuração deve ser um JSON válido. Verifique as aspas e vírgulas.", "error");
+                showAlert("Erro no Formato", "Estrutura JSON inválida.", "error");
             }
         }
 
@@ -1486,50 +1177,71 @@
 
         function executeClearLocalData() {
             try {
-                localStorage.removeItem('comanda_catalog');
-                localStorage.removeItem('comanda_cart');
-                localStorage.removeItem('comanda_empresa');
-                localStorage.removeItem('comanda_telefone');
-                localStorage.removeItem('comanda_endereco');
-                localStorage.removeItem('comanda_custom_firebase');
-                
+                localStorage.clear();
                 closeConfirmModal();
-                showAlert("Dados Apagados", "Toda a informação local foi excluída de forma segura. A reiniciar...", "success");
-                
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                showAlert("Dados Apagados", "Toda a informação foi limpa. A reiniciar...", "success");
+                setTimeout(() => window.location.reload(), 1500);
             } catch (e) {
-                console.error("Erro ao limpar base local:", e);
                 closeConfirmModal();
-                showAlert("Falha ao Apagar", "Ocorreu um problema ao remover os registros locais.", "error");
+                showAlert("Erro", "Falha ao apagar dados.", "error");
+            }
+        }
+
+        function runPWADiagnostics() {
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const diagHttps = document.getElementById('diagHttps');
+            if (diagHttps) {
+                diagHttps.textContent = isHttps ? "Seguro ✔️" : "Inseguro (Requer HTTPS) ❌";
+                diagHttps.className = isHttps ? "font-semibold text-emerald-600" : "font-semibold text-rose-500";
+            }
+
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const diagDisplay = document.getElementById('diagDisplayMode');
+            if (diagDisplay) {
+                diagDisplay.textContent = isStandalone ? "App Standalone ✔️" : "Navegador Comum";
+                diagDisplay.className = isStandalone ? "font-semibold text-emerald-600" : "font-semibold text-slate-500";
+            }
+
+            const diagInstall = document.getElementById('diagInstallable');
+            fetch('./manifest.json')
+                .then(res => {
+                    if (res.ok && diagInstall) {
+                        diagInstall.textContent = "Manifesto detetado ✔️";
+                        diagInstall.className = "font-semibold text-emerald-600";
+                    } else if (diagInstall) {
+                        diagInstall.textContent = "Falta o manifest.json ⚠️";
+                        diagInstall.className = "font-semibold text-rose-500";
+                    }
+                })
+                .catch(() => {
+                    if (diagInstall) {
+                        diagInstall.textContent = "Falta o manifest.json ⚠️";
+                        diagInstall.className = "font-semibold text-rose-500";
+                    }
+                });
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const manualContainer = document.getElementById('manualInstructions');
+            if (manualContainer) {
+                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900">🍏 Manual iOS (Safari):</p>
+                        <p class="mt-1">Toque no botão <strong>Partilhar</strong> e selecione <strong>Adicionar ao Ecrã Principal</strong>.</p>
+                    `;
+                } else {
+                    manualContainer.innerHTML = `
+                        <p class="font-bold text-indigo-900">🤖 Manual Android (Chrome):</p>
+                        <p class="mt-1">Selecione as opções do navegador e clique em <strong>Instalar aplicação</strong>.</p>
+                    `;
+                }
             }
         }
 
         function downloadServiceWorker() {
-            const swContent = `// Service Worker para Comanda Print PWA
-const CACHE_NAME = 'comanda-print-v1';
-const ASSETS = [
-    './',
-    './index.html',
-    'https://cdn.tailwindcss.com'
-];
-
-self.addEventListener('install', (e) => {
-    e.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
-        })
-    );
-});
-
-self.addEventListener('fetch', (e) => {
-    e.respondWith(
-        caches.match(e.request).then((response) => {
-            return response || fetch(e.request);
-        })
-    );
-});`;
+            const swContent = `const CACHE_NAME = 'comanda-print-v1';
+const ASSETS = ['./', './index.html', 'https://cdn.tailwindcss.com'];
+self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))); });
+self.addEventListener('fetch', (e) => { e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request))); });`;
             
             const blob = new Blob([swContent], { type: 'application/javascript' });
             const url = URL.createObjectURL(blob);
@@ -1546,23 +1258,13 @@ self.addEventListener('fetch', (e) => {
             const manifestContent = {
                 "name": "Comanda Print",
                 "short_name": "ComandaPrint",
-                "description": "Sistema de Impressão Bluetooth PWA para Comandas",
                 "start_url": "./index.html",
                 "display": "standalone",
                 "background_color": "#4f46e5",
                 "theme_color": "#4f46e5",
-                "orientation": "portrait",
                 "icons": [
-                    {
-                        "src": "https://placehold.co/192x192/4f46e5/ffffff?text=CP",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "https://placehold.co/512x512/4f46e5/ffffff?text=Comanda+Print",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    }
+                    { "src": "https://placehold.co/192x192/4f46e5/ffffff?text=CP", "sizes": "192x192", "type": "image/png" },
+                    { "src": "https://placehold.co/512x512/4f46e5/ffffff?text=Comanda+Print", "sizes": "512x512", "type": "image/png" }
                 ]
             };
             
@@ -1577,38 +1279,94 @@ self.addEventListener('fetch', (e) => {
             URL.revokeObjectURL(url);
         }
 
-        // Captura do Evento Nativo de Instalação de Atalho (PWA Prompt)
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Ativa o botão no cabeçalho
-            const installBtn = document.getElementById('btnInstallPWA');
-            if (installBtn) installBtn.classList.remove('hidden');
-
-            // Atualiza o estado no painel de diagnóstico
-            const diagInstall = document.getElementById('diagInstallable');
-            if (diagInstall) {
-                diagInstall.textContent = "Disponível para Instalação ✔️";
-                diagInstall.className = "font-semibold text-emerald-600";
-            }
-        });
-
-        function triggerPWAInstall() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('App instalado!');
-                }
-                deferredPrompt = null;
-                const installBtn = document.getElementById('btnInstallPWA');
-                if (installBtn) installBtn.classList.add('hidden');
-            });
+        function stripAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         }
 
-        // Exposição para eventos inline do HTML
+        async function printBluetooth() {
+            if (!characteristic) {
+                showAlert("Não Conectado", "Conecte a impressora no cabeçalho antes de imprimir.", "error");
+                return;
+            }
+            if (cart.length === 0) {
+                showAlert("Carrinho Vazio", "Adicione produtos antes de imprimir.", "error");
+                return;
+            }
+
+            try {
+                const text = stripAccents(getReceiptText());
+                const initCmd = new Uint8Array([0x1B, 0x40]);
+                await characteristic.writeValue(initCmd);
+
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(text + "\n\n\n\n");
+                const cutCmd = new Uint8Array([0x1D, 0x56, 0x42, 0x00]);
+
+                const CHUNK_SIZE = 20;
+                for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+                    const chunk = bytes.slice(i, i + CHUNK_SIZE);
+                    await characteristic.writeValue(chunk);
+                    await new Promise(r => setTimeout(r, 30));
+                }
+
+                try { await characteristic.writeValue(cutCmd); } catch(e) {}
+                showAlert("Impresso!", "Comanda enviada com sucesso!", "success");
+                clearCart();
+            } catch (err) {
+                showAlert("Erro", err.message, "error");
+            }
+        }
+
+        function printBrowser() {
+            if (cart.length === 0) {
+                showAlert("Carrinho Vazio", "Adicione produtos antes de imprimir.", "error");
+                return;
+            }
+            const receiptText = getReceiptText();
+            const win = window.open('', '_blank', 'width=600,height=600');
+            win.document.write(`
+                <html>
+                <head>
+                    <title>Imprimir Comanda</title>
+                    <style>
+                        body { font-family: 'Courier New', Courier, monospace; padding: 20px; white-space: pre; font-size: 14px; display:flex; justify-content:center; }
+                        @media print { body { padding:0; } }
+                    </style>
+                </head>
+                <body>${receiptText}</body>
+                </html>
+            `);
+            win.document.close();
+            win.focus();
+            setTimeout(() => {
+                win.print();
+                win.close();
+                clearCart();
+            }, 500);
+        }
+
+        function showAlert(title, message, type = 'info') {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            const iconContainer = document.getElementById('modalIconContainer');
+            if (type === 'error') {
+                iconContainer.innerHTML = '❌';
+                iconContainer.className = "p-3 bg-rose-50 text-rose-600 rounded-full font-bold";
+            } else if (type === 'success') {
+                iconContainer.innerHTML = '✔️';
+                iconContainer.className = "p-3 bg-emerald-50 text-emerald-600 rounded-full font-bold";
+            } else {
+                iconContainer.innerHTML = 'ℹ️';
+                iconContainer.className = "p-3 bg-indigo-50 text-indigo-600 rounded-full font-bold";
+            }
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Eventos Globais expostos para o HTML
         window.switchTab = switchTab;
         window.setPaperSize = setPaperSize;
         window.addTempOption = addTempOption;
@@ -1628,26 +1386,28 @@ self.addEventListener('fetch', (e) => {
         window.printBluetooth = printBluetooth;
         window.printBrowser = printBrowser;
         window.closeModal = closeModal;
+        window.exportCatalog = exportCatalog;
+        window.importCatalog = importCatalog;
         window.saveCustomFirebase = saveCustomFirebase;
         window.downloadServiceWorker = downloadServiceWorker;
         window.downloadManifest = downloadManifest;
-        window.triggerPWAInstall = triggerPWAInstall;
         window.openPasswordModal = openPasswordModal;
         window.closePasswordModal = closePasswordModal;
         window.validateConfigPassword = validateConfigPassword;
-
         window.showClearDataConfirm = showClearDataConfirm;
         window.closeConfirmModal = closeConfirmModal;
         window.executeClearLocalData = executeClearLocalData;
+        window.renderPreview = renderPreview;
 
-        // Executar inicialização operacional síncrona
-        loadLocalData();
-        renderCatalog();
-        renderCart();
-        renderPreview();
+        window.onload = function() {
+            loadLocalData();
+            renderCatalog();
+            renderCart();
+            renderPreview();
+            runPWADiagnostics();
+        };
     </script>
 
-    <!-- 7. CARREGAMENTO DINÂMICO E SEGURO DO FIREBASE / REGISTO DE SW -->
     <script type="module">
         const firebaseAppUrl = "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         const firebaseAuthUrl = "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1657,23 +1417,20 @@ self.addEventListener('fetch', (e) => {
         const dot = document.getElementById('cloudStatusDot');
         const statusTxt = document.getElementById('cloudStatusText');
 
-        // Registro do Service Worker de forma segura sem travar em modo offline
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then(reg => {
-                        console.log('Service Worker registado com sucesso');
                         const swStatus = document.getElementById('swStatusText');
                         if (swStatus) {
-                            swStatus.textContent = "Ativo (Instalação OK) ✔️";
+                            swStatus.textContent = "Ativo ✔️";
                             swStatus.className = "font-semibold text-emerald-600";
                         }
                     })
-                    .catch(err => {
-                        console.log('Falha ao registar o Service Worker:', err);
+                    .catch(() => {
                         const swStatus = document.getElementById('swStatusText');
                         if (swStatus) {
-                            swStatus.textContent = "Falta o ficheiro sw.js ⚠️";
+                            swStatus.textContent = "Falta o sw.js ⚠️";
                             swStatus.className = "font-semibold text-rose-500";
                         }
                     });
@@ -1701,7 +1458,6 @@ self.addEventListener('fetch', (e) => {
             }
         }
 
-        // Tentar resolver a configuração do Firebase (seja injetada ou definida pelo utilizador)
         let resolvedConfig = null;
         const platformConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
         const customConfig = localStorage.getItem('comanda_custom_firebase');
@@ -1709,19 +1465,13 @@ self.addEventListener('fetch', (e) => {
         if (platformConfig) {
             resolvedConfig = JSON.parse(platformConfig);
         } else if (customConfig) {
-            try {
-                resolvedConfig = JSON.parse(customConfig);
-            } catch (e) {
-                console.error("Configuração de nuvem do usuário corrompida.");
-            }
+            try { resolvedConfig = JSON.parse(customConfig); } catch (e) {}
         }
 
         if (!resolvedConfig) {
             updateCloudStatus("Modo Local", "slate");
         } else {
             updateCloudStatus("A ligar...", "amber");
-            
-            // Tentar importar de forma assíncrona as dependências de rede sem quebrar a execução global do app
             try {
                 const { initializeApp } = await import(firebaseAppUrl);
                 const { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } = await import(firebaseAuthUrl);
@@ -1734,7 +1484,6 @@ self.addEventListener('fetch', (e) => {
                 const auth = getAuth(app);
                 const db = getFirestore(app);
 
-                // Executar Autenticação
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
@@ -1744,11 +1493,9 @@ self.addEventListener('fetch', (e) => {
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         updateCloudStatus("Nuvem Ativa", "emerald");
-
                         const catalogDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'menu', 'catalog');
                         const cartDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'active_cart', 'current');
 
-                        // Escutar alterações do catálogo do banco
                         onSnapshot(catalogDocRef, (snapshot) => {
                             if (snapshot.exists()) {
                                 catalog = snapshot.data().items || [];
@@ -1759,7 +1506,6 @@ self.addEventListener('fetch', (e) => {
                             }
                         });
 
-                        // Escutar alterações do carrinho do banco
                         onSnapshot(cartDocRef, (snapshot) => {
                             if (snapshot.exists()) {
                                 cart = snapshot.data().items || [];
@@ -1768,7 +1514,6 @@ self.addEventListener('fetch', (e) => {
                             }
                         });
 
-                        // Configurar sincronizações ativas
                         window.firebaseSyncCatalog = async (newCatalog) => {
                             await setDoc(catalogDocRef, { items: newCatalog });
                         };
@@ -1776,28 +1521,79 @@ self.addEventListener('fetch', (e) => {
                         window.firebaseSyncCart = async (newCart) => {
                             await setDoc(cartDocRef, { items: newCart });
                         };
-
                     } else {
                         updateCloudStatus("Desconectado", "rose");
                     }
                 });
-
             } catch (error) {
-                console.error("Falha ao ligar à Nuvem, a iniciar em Modo Local de segurança", error);
                 updateCloudStatus("Erro Cloud (Modo Local)", "rose");
             }
         }
+    </script>
 
-        // Listener de sincronização de salvamento local caso altere morada/empresa
-        const autoSaveFields = ['cfgEmpresa', 'cfgTelefone', 'cfgEndereco'];
-        autoSaveFields.forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.addEventListener('input', () => {
-                    saveLocalData();
+    <script>
+        document.getElementById('btnConnect').addEventListener('click', connectBluetooth);
+
+        async function connectBluetooth() {
+            try {
+                updateBtStatus("A ligar...", "amber");
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { services: [UUID_SERVICE_PRINTER] },
+                        { namePrefix: 'MTP' },
+                        { namePrefix: 'XP' },
+                        { namePrefix: 'Xprinter' },
+                        { namePrefix: 'Printer' },
+                        { namePrefix: 'RP' }
+                    ],
+                    optionalServices: [UUID_SERVICE_PRINTER]
                 });
+
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+
+                server = await device.gatt.connect();
+                service = await server.getPrimaryService(UUID_SERVICE_PRINTER);
+                characteristic = await service.getCharacteristic(UUID_CHARACTERISTIC_WRITE);
+
+                updateBtStatus("Conectado", "emerald");
+                showAlert("Conectado!", "A sua impressora Bluetooth está pronta.", "success");
+            } catch (error) {
+                updateBtStatus("Desconectado", "amber");
+                showAlert("Falha ao Conectar", error.message, "error");
             }
-        });
+        }
+
+        function onDisconnected() {
+            updateBtStatus("Desconectado", "amber");
+            showAlert("Impressora Desconectada", "A conexão foi perdida.", "info");
+            characteristic = null;
+            service = null;
+            server = null;
+            device = null;
+        }
+
+        function updateBtStatus(text, color) {
+            const badge = document.getElementById('btStatusBadge');
+            const dot = document.getElementById('btStatusDot');
+            const statusTxt = document.getElementById('btStatusText');
+            
+            if (!badge || !dot || !statusTxt) return;
+            statusTxt.textContent = text;
+            badge.className = `flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all`;
+            dot.className = "w-2.5 h-2.5 rounded-full";
+
+            if (color === "emerald") {
+                badge.classList.add("bg-emerald-500/10", "text-emerald-500", "border-emerald-500/20");
+                dot.classList.add("bg-emerald-500");
+                dot.classList.remove("animate-pulse");
+            } else if (color === "amber") {
+                badge.classList.add("bg-amber-500/10", "text-amber-500", "border-amber-500/20");
+                dot.classList.add("bg-amber-500", "animate-pulse");
+            } else {
+                badge.classList.add("bg-rose-500/10", "text-rose-500", "border-rose-500/20");
+                dot.classList.add("bg-rose-500");
+            }
+        }
     </script>
 </body>
 </html>
