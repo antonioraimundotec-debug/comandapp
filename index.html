@@ -658,11 +658,11 @@
         }
 
         function getReceiptText() {
-            const empresa = (document.getElementById('cfgEmpresa').value || 'D&A SISTEMAS').toUpperCase();
+            const empresa = (document.getElementById('cfgEmpresa').value || 'Pizzaria Bella Italia').toUpperCase();
             const telefone = document.getElementById('cfgTelefone').value || '';
             const endereco = document.getElementById('cfgEndereco').value || '';
-            const identificacao = document.getElementById('comandaIdentificacao').value || 'Balcão';
-            const atendente = document.getElementById('comandaAtendente').value || 'Antonio';
+            const identificacao = document.getElementById('comandaIdentificacao').value || 'Mesa 04';
+            const atendente = document.getElementById('comandaAtendente').value || 'Carlos';
             const observacao = document.getElementById('comandaObservacao').value || '';
             const layout = document.getElementById('cfgLayout').value;
 
@@ -1175,15 +1175,57 @@
             document.getElementById('confirmActionModal').classList.add('hidden');
         }
 
-        function executeClearLocalData() {
+        async function executeClearLocalData() {
             try {
+                // 1. Limpa os Storages básicos do browser
                 localStorage.clear();
+                sessionStorage.clear();
+
+                // 2. Limpa toda a Cache de ficheiros da PWA (Cache Storage)
+                if ('caches' in window) {
+                    try {
+                        const cacheKeys = await caches.keys();
+                        await Promise.all(cacheKeys.map(key => caches.delete(key)));
+                    } catch (cacheErr) {
+                        console.warn("Aviso ao limpar Cache Storage:", cacheErr);
+                    }
+                }
+
+                // 3. Desregista todos os Service Workers para desativar a PWA temporariamente
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(registrations.map(reg => reg.unregister()));
+                    } catch (swErr) {
+                        console.warn("Aviso ao desregistar Service Workers:", swErr);
+                    }
+                }
+
+                // 4. Limpa as tabelas IndexedDB locais (usadas pelo Firebase Firestore para dados offline)
+                if (window.indexedDB && window.indexedDB.databases) {
+                    try {
+                        const databases = await window.indexedDB.databases();
+                        for (const db of databases) {
+                            if (db.name) {
+                                window.indexedDB.deleteDatabase(db.name);
+                            }
+                        }
+                    } catch (idbErr) {
+                        console.warn("Aviso ao eliminar IndexedDB:", idbErr);
+                    }
+                }
+
                 closeConfirmModal();
-                showAlert("Dados Apagados", "Toda a informação foi limpa. A reiniciar...", "success");
-                setTimeout(() => window.location.reload(), 1500);
+                showAlert("Limpeza Completa", "Todos os dados, caches da PWA e base de dados offline foram apagados. A recarregar o sistema...", "success");
+                
+                // 5. Força o recarregamento total da página contornando a cache física do browser
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1800);
+
             } catch (e) {
                 closeConfirmModal();
-                showAlert("Erro", "Falha ao apagar dados.", "error");
+                showAlert("Erro de Limpeza", "Falha ao apagar todos os dados residuais: " + e.message, "error");
             }
         }
 
